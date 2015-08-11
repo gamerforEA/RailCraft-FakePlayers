@@ -14,7 +14,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import mods.railcraft.api.carts.IItemTransfer;
+import com.gamerforea.railcraft.FakePlayerUtils;
+
+import mods.railcraft.api.carts.CartTools;
 import mods.railcraft.api.carts.ILinkableCart;
 import mods.railcraft.api.carts.bore.IBoreHead;
 import mods.railcraft.api.carts.bore.IMineable;
@@ -52,8 +54,6 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
-import com.gamerforea.railcraft.FakePlayerUtils;
-
 public class EntityTunnelBore extends CartContainerBase implements IInventory, ILinkableCart
 {
 	public static final float SPEED = 0.03F;
@@ -65,28 +65,13 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 	public static final int BALLAST_DELAY = 10;
 	public static final int FUEL_CONSUMPTION = 12;
 	public static final float HARDNESS_MULTIPLER = 8;
+	public static final BlockSet mineableBlocks = new BlockSet();
+	public static final Set<Block> replaceableBlocks = new HashSet<Block>();
 	protected static final int WATCHER_ID_FUEL = 16;
 	protected static final int WATCHER_ID_MOVING = 25;
 	protected static final int WATCHER_ID_BORE_HEAD = 26;
 	protected static final int WATCHER_ID_FACING = 5;
-	//    protected static final int WATCHER_ID_BURN_TIME = 22;
-	protected boolean degreeCalc = false;
-	protected int delay = 0;
-	private boolean active;
-	private int clock = MiscTools.getRand().nextInt();
-	private int burnTime;
-	private int fuel;
-	private boolean hasInit;
-	protected boolean placeRail = false;
-	protected boolean placeBallast = false;
-	protected boolean boreLayer = false;
-	protected final IInventory invFuel = new InventoryMapper(this, 1, 6);
-	protected final IInventory invBallast = new InventoryMapper(this, 7, 9);
-	protected final IInventory invRails = new InventoryMapper(this, 16, 9);
-	protected int boreRotationAngle = 0;
-	public static final BlockSet mineableBlocks = new BlockSet();
 	private static final Block[] mineable = { Blocks.clay, Blocks.snow_layer, Blocks.cactus, Blocks.carrots, Blocks.cobblestone, Blocks.mossy_cobblestone, Blocks.cocoa, Blocks.wheat, Blocks.deadbush, Blocks.dirt, Blocks.fire, Blocks.glowstone, Blocks.grass, Blocks.gravel, Blocks.ice, Blocks.leaves, Blocks.melon_block, Blocks.melon_stem, Blocks.brown_mushroom, Blocks.brown_mushroom_block, Blocks.red_mushroom, Blocks.red_mushroom_block, Blocks.mycelium, Blocks.nether_wart, Blocks.netherrack, Blocks.obsidian, Blocks.coal_ore, Blocks.diamond_ore, Blocks.emerald_ore, Blocks.gold_ore, Blocks.iron_ore, Blocks.lapis_ore, Blocks.redstone_ore, Blocks.lit_redstone_ore, Blocks.red_flower, Blocks.yellow_flower, Blocks.potatoes, Blocks.pumpkin, Blocks.pumpkin_stem, Blocks.reeds, Blocks.sand, Blocks.sandstone, Blocks.sapling, Blocks.soul_sand, Blocks.snow, Blocks.stone, Blocks.tallgrass, Blocks.farmland, Blocks.torch, Blocks.vine, Blocks.waterlily, Blocks.web, Blocks.end_stone, Blocks.log, Blocks.log2, };
-	public static final Set<Block> replaceableBlocks = new HashSet<Block>();
 	private static final Block[] replaceable = { Blocks.torch, Blocks.tallgrass, Blocks.deadbush, Blocks.vine, Blocks.brown_mushroom, Blocks.red_mushroom, Blocks.yellow_flower, Blocks.red_flower, Blocks.double_plant };
 
 	static
@@ -97,6 +82,22 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 		}
 		replaceableBlocks.addAll(Arrays.asList(replaceable));
 	}
+
+	protected final IInventory invFuel = new InventoryMapper(this, 1, 6);
+	protected final IInventory invBallast = new InventoryMapper(this, 7, 9);
+	protected final IInventory invRails = new InventoryMapper(this, 16, 9);
+	//    protected static final int WATCHER_ID_BURN_TIME = 22;
+	protected boolean degreeCalc = false;
+	protected int delay = 0;
+	protected boolean placeRail = false;
+	protected boolean placeBallast = false;
+	protected boolean boreLayer = false;
+	protected int boreRotationAngle = 0;
+	private boolean active;
+	private int clock = MiscTools.getRand().nextInt();
+	private int burnTime;
+	private int fuel;
+	private boolean hasInit;
 
 	public EntityTunnelBore(World world, double i, double j, double k)
 	{
@@ -134,9 +135,52 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 		mineableBlocks.add(new BlockKey(block, meta));
 	}
 
+	public static boolean canHeadHarvestBlock(ItemStack head, Block block, int meta)
+	{
+		if (head == null)
+			return false;
+
+		if (head.getItem() instanceof IBoreHead)
+		{
+			IBoreHead boreHead = (IBoreHead) head.getItem();
+
+			boolean mappingExists = false;
+
+			int blockHarvestLevel = HarvestPlugin.getBlockHarvestLevel(block, meta, "pickaxe");
+			if (blockHarvestLevel > -1)
+			{
+				if (boreHead.getHarvestLevel() >= blockHarvestLevel)
+					return true;
+				mappingExists = true;
+			}
+
+			blockHarvestLevel = HarvestPlugin.getBlockHarvestLevel(block, meta, "axe");
+			if (blockHarvestLevel > -1)
+			{
+				if (boreHead.getHarvestLevel() >= blockHarvestLevel)
+					return true;
+				mappingExists = true;
+			}
+
+			blockHarvestLevel = HarvestPlugin.getBlockHarvestLevel(block, meta, "shovel");
+			if (blockHarvestLevel > -1)
+			{
+				if (boreHead.getHarvestLevel() >= blockHarvestLevel)
+					return true;
+				mappingExists = true;
+			}
+
+			if (mappingExists)
+				return false;
+		}
+
+		return true;
+	}
+
 	private boolean isMinableBlock(Block block, int meta)
 	{
-		if (RailcraftConfig.boreMinesAllBlocks()) return true;
+		if (RailcraftConfig.boreMinesAllBlocks())
+			return true;
 		return mineableBlocks.contains(block, meta);
 	}
 
@@ -164,29 +208,34 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 	@Override
 	public boolean attackEntityFrom(DamageSource source, float damage)
 	{
-		if (!this.worldObj.isRemote && !this.isDead) if (this.isEntityInvulnerable()) return false;
-		else
-		{
-			this.setRollingDirection(-this.getRollingDirection());
-			this.setRollingAmplitude(10);
-			this.setBeenAttacked();
-			this.setDamage(this.getDamage() + damage * 10);
-			boolean flag = source.getEntity() instanceof EntityPlayer && ((EntityPlayer) source.getEntity()).capabilities.isCreativeMode;
-
-			if (flag || this.getDamage() > 120)
+		if (!this.worldObj.isRemote && !this.isDead)
+			if (this.isEntityInvulnerable())
+				return false;
+			else
 			{
-				if (this.riddenByEntity != null) this.riddenByEntity.mountEntity(this);
+				this.setRollingDirection(-this.getRollingDirection());
+				this.setRollingAmplitude(10);
+				this.setBeenAttacked();
+				this.setDamage(this.getDamage() + damage * 10);
+				boolean flag = source.getEntity() instanceof EntityPlayer && ((EntityPlayer) source.getEntity()).capabilities.isCreativeMode;
 
-				if (flag && !this.hasCustomInventoryName()) this.setDead();
-				else this.killMinecart(source);
+				if (flag || this.getDamage() > 120)
+				{
+					if (this.riddenByEntity != null)
+						this.riddenByEntity.mountEntity(this);
+
+					if (flag && !this.hasCustomInventoryName())
+						this.setDead();
+					else
+						this.killMinecart(source);
+				}
+
+				return true;
 			}
-
+		else
 			return true;
-		}
-		else return true;
 	}
 
-	@SuppressWarnings("incomplete-switch")
 	private void setYaw()
 	{
 		float yaw = 0;
@@ -293,7 +342,8 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 				int y = MathHelper.floor_double(posY);
 				int z;
 				EnumTrackMeta dir = EnumTrackMeta.NORTH_SOUTH;
-				if (getFacing() == ForgeDirection.WEST || getFacing() == ForgeDirection.EAST) dir = EnumTrackMeta.EAST_WEST;
+				if (getFacing() == ForgeDirection.WEST || getFacing() == ForgeDirection.EAST)
+					dir = EnumTrackMeta.EAST_WEST;
 
 				if (getDelay() == 0)
 				{
@@ -304,7 +354,8 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 					if (placeBallast)
 					{
 						boolean placed = placeBallast(x, y - 1, z);
-						if (placed) setDelay(STANDARD_DELAY);
+						if (placed)
+							setDelay(STANDARD_DELAY);
 						else
 						{
 							setDelay(FAIL_DELAY);
@@ -328,7 +379,8 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 					if (placeRail)
 					{
 						boolean placed = placeTrack(x, y, z, dir);
-						if (placed) setDelay(STANDARD_DELAY);
+						if (placed)
+							setDelay(STANDARD_DELAY);
 						else
 						{
 							setDelay(FAIL_DELAY);
@@ -365,7 +417,8 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 					if (boreLayer)
 					{
 						boolean bored = boreLayer(x, y, z, dir);
-						if (bored) setDelay(LAYER_DELAY);
+						if (bored)
+							setDelay(LAYER_DELAY);
 						else
 						{
 							setDelay(FAIL_DELAY);
@@ -381,7 +434,8 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 					else
 					{
 						setDelay((int) Math.ceil(getLayerHardness(x, y, z, dir)));
-						if (getDelay() != 0) boreLayer = true;
+						if (getDelay() != 0)
+							boreLayer = true;
 					}
 				}
 			}
@@ -404,7 +458,8 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 
 			setMoving(hasFuel() && getDelay() == 0);
 
-			if (getDelay() > 0) setDelay(getDelay() - 1);
+			if (getDelay() > 0)
+				setDelay(getDelay() - 1);
 		}
 
 		if (isMoving())
@@ -422,7 +477,8 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 
 		emitParticles();
 
-		if (isMinecartPowered()) boreRotationAngle += 5;
+		if (isMinecartPowered())
+			boreRotationAngle += 5;
 	}
 
 	@Override
@@ -435,24 +491,30 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 	{
 		if (Game.isHost(worldObj))
 		{
-			if (isMinecartPowered()) spendFuel();
+			if (isMinecartPowered())
+				spendFuel();
 			stockFuel();
-			if (outOfFuel()) addFuel();
+			if (outOfFuel())
+				addFuel();
 			setMinecartPowered(hasFuel() && isActive());
 		}
 	}
 
 	protected double getXAhead(double x, double offset)
 	{
-		if (getFacing() == ForgeDirection.EAST) x += offset;
-		else if (getFacing() == ForgeDirection.WEST) x -= offset;
+		if (getFacing() == ForgeDirection.EAST)
+			x += offset;
+		else if (getFacing() == ForgeDirection.WEST)
+			x -= offset;
 		return x;
 	}
 
 	protected double getZAhead(double z, double offset)
 	{
-		if (getFacing() == ForgeDirection.NORTH) z -= offset;
-		else if (getFacing() == ForgeDirection.SOUTH) z += offset;
+		if (getFacing() == ForgeDirection.NORTH)
+			z -= offset;
+		else if (getFacing() == ForgeDirection.SOUTH)
+			z += offset;
 		return z;
 	}
 
@@ -540,103 +602,77 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 
 	protected void stockBallast()
 	{
-		EntityMinecart link = LinkageManager.instance().getLinkedCartA(this);
-		if (link instanceof IItemTransfer)
+		if (InvTools.isEmptySlot(invBallast))
 		{
-			IItemTransfer tranfer = (IItemTransfer) link;
-
-			for (int slot = 0; slot < invBallast.getSizeInventory(); slot++)
-			{
-				ItemStack stack = invBallast.getStackInSlot(slot);
-				if (stack != null && !BallastRegistry.isItemBallast(stack))
-				{
-					stack = tranfer.offerItem(this, stack);
-					invBallast.setInventorySlotContents(slot, stack);
-					return;
-				}
-				if (stack == null)
-				{
-					stack = tranfer.requestItem(this, StackFilter.BALLAST);
-					InvTools.moveItemStack(stack, invBallast);
-					return;
-				}
-			}
+			ItemStack stack = CartTools.transferHelper.pullStack(this, StackFilter.BALLAST);
+			if (stack != null)
+				InvTools.moveItemStack(stack, invBallast);
 		}
 	}
 
 	protected boolean placeBallast(int i, int j, int k)
 	{
-		if (!worldObj.isSideSolid(i, j, k, ForgeDirection.UP)) for (int inv = 0; inv < invBallast.getSizeInventory(); inv++)
-		{
-			ItemStack stack = invBallast.getStackInSlot(inv);
-			if (stack != null && BallastRegistry.isItemBallast(stack))
+		if (!worldObj.isSideSolid(i, j, k, ForgeDirection.UP))
+			for (int inv = 0; inv < invBallast.getSizeInventory(); inv++)
 			{
-				for (int y = j; y > j - MAX_FILL_DEPTH; y--)
+				ItemStack stack = invBallast.getStackInSlot(inv);
+				if (stack != null && BallastRegistry.isItemBallast(stack))
 				{
-					if (worldObj.isSideSolid(i, y, k, ForgeDirection.UP))
+					for (int y = j; y > j - MAX_FILL_DEPTH; y--)
 					{
-						// TODO gamerforEA code start
-						if (FakePlayerUtils.callBlockBreakEvent(i, j, k, this.getOwnerFake()).isCancelled()) return false;
-						// TODO gamerforEA code end
-						invBallast.decrStackSize(inv, 1);
-						worldObj.setBlock(i, j, k, InvTools.getBlockFromStack(stack), stack.getItemDamage(), 3);
-						return true;
+						if (worldObj.isSideSolid(i, y, k, ForgeDirection.UP))
+						{
+							// TODO gamerforEA code start
+							if (FakePlayerUtils.cantBreak(i, j, k, this.getOwnerFake()))
+								return false;
+							// TODO gamerforEA code end
+							invBallast.decrStackSize(inv, 1);
+							worldObj.setBlock(i, j, k, InvTools.getBlockFromStack(stack), stack.getItemDamage(), 3);
+							return true;
+						}
 					}
+					return false;
 				}
-				return false;
 			}
-		}
 		return false;
 	}
 
 	protected void stockTracks()
 	{
-		EntityMinecart link = LinkageManager.instance().getLinkedCartA(this);
-		if (link instanceof IItemTransfer)
+		if (InvTools.isEmptySlot(invRails))
 		{
-			IItemTransfer tranfer = (IItemTransfer) link;
-
-			for (int slot = 0; slot < invRails.getSizeInventory(); slot++)
-			{
-				ItemStack stack = invRails.getStackInSlot(slot);
-				if (stack != null && !StackFilter.TRACK.matches(stack))
-				{
-					stack = tranfer.offerItem(this, stack);
-					invRails.setInventorySlotContents(slot, stack);
-					return;
-				}
-				if (stack == null)
-				{
-					stack = tranfer.requestItem(this, StackFilter.TRACK);
-					InvTools.moveItemStack(stack, invRails);
-					return;
-				}
-			}
+			ItemStack stack = CartTools.transferHelper.pullStack(this, StackFilter.TRACK);
+			if (stack != null)
+				InvTools.moveItemStack(stack, invRails);
 		}
 	}
 
 	protected boolean placeTrack(int x, int y, int z, EnumTrackMeta meta)
 	{
 		// TODO gamerforEA code start
-		if (FakePlayerUtils.callBlockBreakEvent(x, y, z, this.getOwnerFake()).isCancelled()) return false;
+		if (FakePlayerUtils.cantBreak(x, y, z, this.getOwnerFake()))
+			return false;
 		// TODO gamerforEA code end
-		Block block = worldObj.getBlock(x, y, z);
-		if (replaceableBlocks.contains(block)) worldObj.func_147480_a(x, y, z, true);
 
-		if (worldObj.isAirBlock(x, y, z) && worldObj.isSideSolid(x, y - 1, z, ForgeDirection.UP)) for (int inv = 0; inv < invRails.getSizeInventory(); inv++)
-		{
-			ItemStack stack = invRails.getStackInSlot(inv);
-			if (stack != null)
+		Block block = worldObj.getBlock(x, y, z);
+		if (replaceableBlocks.contains(block))
+			worldObj.func_147480_a(x, y, z, true);
+
+		if (worldObj.isAirBlock(x, y, z) && worldObj.isSideSolid(x, y - 1, z, ForgeDirection.UP))
+			for (int inv = 0; inv < invRails.getSizeInventory(); inv++)
 			{
-				boolean placed = RailTools.placeRailAt(stack, worldObj, x, y, z);
-				if (placed)
+				ItemStack stack = invRails.getStackInSlot(inv);
+				if (stack != null)
 				{
-					worldObj.setBlockMetadataWithNotify(x, y, z, meta.ordinal(), 3);
-					invRails.decrStackSize(inv, 1);
+					boolean placed = RailTools.placeRailAt(stack, worldObj, x, y, z);
+					if (placed)
+					{
+						worldObj.setBlockMetadataWithNotify(x, y, z, meta.ordinal(), 3);
+						invRails.decrStackSize(inv, 1);
+					}
+					return placed;
 				}
-				return placed;
 			}
-		}
 		return false;
 	}
 
@@ -664,7 +700,8 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 				for (int kk = zStart; kk <= zEnd; kk++)
 				{
 					Block block = worldObj.getBlock(ii, jj, kk);
-					if (block == Blocks.lava || block == Blocks.flowing_lava) return true;
+					if (block == Blocks.lava || block == Blocks.flowing_lava)
+						return true;
 				}
 			}
 		}
@@ -682,8 +719,10 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 			clear = clear && mineBlock(ii, jj, kk, dir);
 		}
 
-		if (dir == EnumTrackMeta.NORTH_SOUTH) ii--;
-		else kk--;
+		if (dir == EnumTrackMeta.NORTH_SOUTH)
+			ii--;
+		else
+			kk--;
 		for (int jj = j; jj < j + 3; jj++)
 		{
 			clear = clear && mineBlock(ii, jj, kk, dir);
@@ -691,8 +730,10 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 
 		ii = i;
 		kk = k;
-		if (dir == EnumTrackMeta.NORTH_SOUTH) ii++;
-		else kk++;
+		if (dir == EnumTrackMeta.NORTH_SOUTH)
+			ii++;
+		else
+			kk++;
 		for (int jj = j; jj < j + 3; jj++)
 		{
 			clear = clear && mineBlock(ii, jj, kk, dir);
@@ -702,43 +743,53 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 
 	protected boolean mineBlock(int x, int y, int z, EnumTrackMeta dir)
 	{
-		if (worldObj.isAirBlock(x, y, z)) return true;
+		if (worldObj.isAirBlock(x, y, z))
+			return true;
 
 		Block block = worldObj.getBlock(x, y, z);
 		if (TrackTools.isRailBlock(block))
 		{
 			int trackMeta = TrackTools.getTrackMeta(worldObj, block, this, x, y, z);
-			if (dir.isEqual(trackMeta)) return true;
+			if (dir.isEqual(trackMeta))
+				return true;
 		}
-		else if (block == Blocks.torch) return true;
+		else if (block == Blocks.torch)
+			return true;
 
 		ItemStack head = getStackInSlot(0);
-		if (head == null) return false;
+		if (head == null)
+			return false;
 
 		int meta = worldObj.getBlockMetadata(x, y, z);
 
-		if (!canMineBlock(x, y, z, block, meta)) return false;
+		if (!canMineBlock(x, y, z, block, meta))
+			return false;
+
 		// TODO gamerforEA code start
-		if (FakePlayerUtils.callBlockBreakEvent(x, y, z, this.getOwnerFake()).isCancelled()) return false;
+		if (FakePlayerUtils.cantBreak(x, y, z, this.getOwnerFake()))
+			return false;
 		// TODO gamerforEA code end
+
 		ArrayList<ItemStack> items = block.getDrops(worldObj, x, y, z, meta, 0);
-		EntityMinecart link = LinkageManager.instance().getLinkedCartA(this);
 
-		for (ItemStack item : items)
+		for (ItemStack stack : items)
 		{
-			if (StackFilter.FUEL.matches(item)) item = InvTools.moveItemStack(item, invFuel);
+			if (StackFilter.FUEL.matches(stack))
+				stack = InvTools.moveItemStack(stack, invFuel);
 
-			if (item != null && item.stackSize > 0 && InvTools.isStackEqualToBlock(item, Blocks.gravel)) item = InvTools.moveItemStack(item, invBallast);
+			if (stack != null && stack.stackSize > 0 && InvTools.isStackEqualToBlock(stack, Blocks.gravel))
+				stack = InvTools.moveItemStack(stack, invBallast);
 
-			if (item != null && item.stackSize > 0 && link instanceof IItemTransfer) item = ((IItemTransfer) link).offerItem(this, item);
+			if (stack != null && stack.stackSize > 0)
+				stack = CartTools.transferHelper.pushStack(this, stack);
 
-			if (item != null && item.stackSize > 0 && !RailcraftConfig.boreDestroysBlocks())
+			if (stack != null && stack.stackSize > 0 && !RailcraftConfig.boreDestroysBlocks())
 			{
 				float f = 0.7F;
 				double xr = (double) (worldObj.rand.nextFloat() - 0.5D) * f;
 				double yr = (double) (worldObj.rand.nextFloat() - 0.5D) * f;
 				double zr = (double) (worldObj.rand.nextFloat() - 0.5D) * f;
-				EntityItem entityitem = new EntityItem(worldObj, getXAhead(posX, -3.2) + xr, posY + 0.3 + yr, getZAhead(posZ, -3.2) + zr, item);
+				EntityItem entityitem = new EntityItem(worldObj, getXAhead(posX, -3.2) + xr, posY + 0.3 + yr, getZAhead(posZ, -3.2) + zr, stack);
 				worldObj.spawnEntityInWorld(entityitem);
 			}
 		}
@@ -746,7 +797,8 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 		worldObj.setBlockToAir(x, y, z);
 
 		head.setItemDamage(head.getItemDamage() + 1);
-		if (head.getItemDamage() > head.getMaxDamage()) setInventorySlotContents(0, null);
+		if (head.getItemDamage() > head.getMaxDamage())
+			setInventorySlotContents(0, null);
 		return true;
 	}
 
@@ -755,48 +807,13 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 		ItemStack head = getStackInSlot(0);
 		if (block instanceof IMineable)
 		{
-			if (head == null) return false;
+			if (head == null)
+				return false;
 			return ((IMineable) block).canMineBlock(worldObj, i, j, k, this, head);
 		}
-		if (block.getBlockHardness(worldObj, i, j, k) < 0) return false;
+		if (block.getBlockHardness(worldObj, i, j, k) < 0)
+			return false;
 		return isMinableBlock(block, meta) && canHeadHarvestBlock(head, block, meta);
-	}
-
-	public static boolean canHeadHarvestBlock(ItemStack head, Block block, int meta)
-	{
-		if (head == null) return false;
-
-		if (head.getItem() instanceof IBoreHead)
-		{
-			IBoreHead boreHead = (IBoreHead) head.getItem();
-
-			boolean mappingExists = false;
-
-			int blockHarvestLevel = HarvestPlugin.getBlockHarvestLevel(block, meta, "pickaxe");
-			if (blockHarvestLevel > -1)
-			{
-				if (boreHead.getHarvestLevel() >= blockHarvestLevel) return true;
-				mappingExists = true;
-			}
-
-			blockHarvestLevel = HarvestPlugin.getBlockHarvestLevel(block, meta, "axe");
-			if (blockHarvestLevel > -1)
-			{
-				if (boreHead.getHarvestLevel() >= blockHarvestLevel) return true;
-				mappingExists = true;
-			}
-
-			blockHarvestLevel = HarvestPlugin.getBlockHarvestLevel(block, meta, "shovel");
-			if (blockHarvestLevel > -1)
-			{
-				if (boreHead.getHarvestLevel() >= blockHarvestLevel) return true;
-				mappingExists = true;
-			}
-
-			if (mappingExists) return false;
-		}
-
-		return true;
 	}
 
 	protected float getLayerHardness(int i, int j, int k, EnumTrackMeta dir)
@@ -809,8 +826,10 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 			hardness += getBlockHardness(ii, jj, kk, dir);
 		}
 
-		if (dir == EnumTrackMeta.NORTH_SOUTH) ii--;
-		else kk--;
+		if (dir == EnumTrackMeta.NORTH_SOUTH)
+			ii--;
+		else
+			kk--;
 		for (int jj = j; jj < j + 3; jj++)
 		{
 			hardness += getBlockHardness(ii, jj, kk, dir);
@@ -818,8 +837,10 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 
 		ii = i;
 		kk = k;
-		if (dir == EnumTrackMeta.NORTH_SOUTH) ii++;
-		else kk++;
+		if (dir == EnumTrackMeta.NORTH_SOUTH)
+			ii++;
+		else
+			kk++;
 		for (int jj = j; jj < j + 3; jj++)
 		{
 			hardness += getBlockHardness(ii, jj, kk, dir);
@@ -842,31 +863,38 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 
 	protected float getBlockHardness(int x, int y, int z, EnumTrackMeta dir)
 	{
-		if (worldObj.isAirBlock(x, y, z)) return 0;
+		if (worldObj.isAirBlock(x, y, z))
+			return 0;
 
 		Block block = worldObj.getBlock(x, y, z);
 		if (TrackTools.isRailBlock(block))
 		{
 			int trackMeta = TrackTools.getTrackMeta(worldObj, block, this, x, y, z);
-			if (dir.isEqual(trackMeta)) return 0;
+			if (dir.isEqual(trackMeta))
+				return 0;
 		}
 
-		if (block == Blocks.torch) return 0;
+		if (block == Blocks.torch)
+			return 0;
 
-		if (block == Blocks.obsidian) return 15;
+		if (block == Blocks.obsidian)
+			return 15;
 
 		int meta = worldObj.getBlockMetadata(x, y, z);
-		if (!canMineBlock(x, y, z, block, meta)) return 0.1f;
+		if (!canMineBlock(x, y, z, block, meta))
+			return 0.1f;
 
 		float hardness = block.getBlockHardness(worldObj, x, y, z);
-		if (hardness <= 0) hardness = 0.1f;
+		if (hardness <= 0)
+			hardness = 0.1f;
 		return hardness;
 	}
 
 	@Override
 	public AxisAlignedBB getCollisionBox(Entity other)
 	{
-		if (other instanceof EntityLivingBase) return other.boundingBox;
+		if (other instanceof EntityLivingBase)
+			return other.boundingBox;
 		return null;
 	}
 
@@ -908,19 +936,18 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 		setActive(data.getBoolean("active"));
 		setBurnTime(data.getInteger("burnTime"));
 		setFuel(data.getInteger("fuel"));
-
-	}
-
-	protected void setDelay(int i)
-	{
-		delay = i;
-		//        dataWatcher.updateObject(WATCHER_ID_DELAY, Integer.valueOf(i));
 	}
 
 	protected int getDelay()
 	{
 		return delay;
 		//        return dataWatcher.getWatchableObjectInt(WATCHER_ID_DELAY);
+	}
+
+	protected void setDelay(int i)
+	{
+		delay = i;
+		//        dataWatcher.updateObject(WATCHER_ID_DELAY, Integer.valueOf(i));
 	}
 
 	protected boolean isActive()
@@ -965,6 +992,12 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 		//        return dataWatcher.getWatchableObjectInt(WATCHER_ID_FUEL);
 	}
 
+	public void setFuel(int i)
+	{
+		fuel = i;
+		//        dataWatcher.updateObject(WATCHER_ID_FUEL, Integer.valueOf(i));
+	}
+
 	public boolean outOfFuel()
 	{
 		return getFuel() <= FUEL_CONSUMPTION;
@@ -977,30 +1010,11 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 
 	protected void stockFuel()
 	{
-		EntityMinecart link = LinkageManager.instance().getLinkedCartA(this);
-		if (link instanceof IItemTransfer)
+		if (InvTools.isEmptySlot(invFuel))
 		{
-			IItemTransfer tranfer = (IItemTransfer) link;
-
-			for (int slot = 0; slot < invFuel.getSizeInventory(); slot++)
-			{
-				ItemStack stack = invFuel.getStackInSlot(slot);
-				if (stack != null && !StackFilter.FUEL.matches(stack))
-				{
-					stack = tranfer.offerItem(this, stack);
-					invFuel.setInventorySlotContents(slot, stack);
-					return;
-				}
-				if (stack == null)
-				{
-					stack = tranfer.requestItem(this, StackFilter.FUEL);
-					if (stack != null)
-					{
-						InvTools.moveItemStack(stack, invFuel);
-						return;
-					}
-				}
-			}
+			ItemStack stack = CartTools.transferHelper.pullStack(this, StackFilter.FUEL);
+			if (stack != null)
+				InvTools.moveItemStack(stack, invFuel);
 		}
 	}
 
@@ -1015,8 +1029,10 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 				burn = FuelPlugin.getBurnTime(stack);
 				if (burn > 0)
 				{
-					if (stack.getItem().hasContainerItem(stack)) invFuel.setInventorySlotContents(slot, stack.getItem().getContainerItem(stack));
-					else invFuel.decrStackSize(slot, 1);
+					if (stack.getItem().hasContainerItem(stack))
+						invFuel.setInventorySlotContents(slot, stack.getItem().getContainerItem(stack));
+					else
+						invFuel.decrStackSize(slot, 1);
 					break;
 				}
 			}
@@ -1031,15 +1047,10 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 	public int getBurnProgressScaled(int i)
 	{
 		int burn = getBurnTime();
-		if (burn == 0) return 0;
+		if (burn == 0)
+			return 0;
 
 		return getFuel() * i / burn;
-	}
-
-	public void setFuel(int i)
-	{
-		fuel = i;
-		//        dataWatcher.updateObject(WATCHER_ID_FUEL, Integer.valueOf(i));
 	}
 
 	protected void spendFuel()
@@ -1050,14 +1061,16 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 	protected void forceUpdateBoreHead()
 	{
 		ItemStack boreStack = getStackInSlot(0);
-		if (boreStack != null) boreStack = boreStack.copy();
+		if (boreStack != null)
+			boreStack = boreStack.copy();
 		dataWatcher.updateObject(WATCHER_ID_BORE_HEAD, boreStack);
 	}
 
 	public IBoreHead getBoreHead()
 	{
 		ItemStack boreStack = dataWatcher.getWatchableObjectItemStack(WATCHER_ID_BORE_HEAD);
-		if (boreStack != null && boreStack.getItem() instanceof IBoreHead) return (IBoreHead) boreStack.getItem();
+		if (boreStack != null && boreStack.getItem() instanceof IBoreHead)
+			return (IBoreHead) boreStack.getItem();
 		return null;
 	}
 
@@ -1086,14 +1099,16 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 	@Override
 	public boolean doInteract(EntityPlayer player)
 	{
-		if (Game.isHost(worldObj)) GuiHandler.openGui(EnumGui.CART_BORE, player, worldObj, this);
+		if (Game.isHost(worldObj))
+			GuiHandler.openGui(EnumGui.CART_BORE, player, worldObj, this);
 		return true;
 	}
 
 	@Override
 	public void markDirty()
 	{
-		if (!isActive()) setDelay(STANDARD_DELAY);
+		if (!isActive())
+			setDelay(STANDARD_DELAY);
 	}
 
 	public final ForgeDirection getFacing()

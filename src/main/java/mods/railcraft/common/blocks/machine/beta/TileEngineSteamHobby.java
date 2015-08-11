@@ -8,6 +8,8 @@
  */
 package mods.railcraft.common.blocks.machine.beta;
 
+import com.gamerforea.railcraft.ExplosionByPlayer;
+
 import mods.railcraft.common.blocks.RailcraftTileEntity;
 import mods.railcraft.common.blocks.machine.IEnumMachine;
 import mods.railcraft.common.fluids.FluidHelper;
@@ -35,8 +37,6 @@ import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidStack;
 
-import com.gamerforea.railcraft.ExplosionByPlayer;
-
 /**
  * @author CovertJaguar <http://www.railcraft.info>
  */
@@ -54,6 +54,7 @@ public class TileEngineSteamHobby extends TileEngineSteam implements IInventory,
 	private static final int[] NO_SLOTS = new int[0];
 	public final SteamBoiler boiler;
 	private StandaloneInventory inv = new StandaloneInventory(3, (IInventory) this);
+	private boolean explode = false;
 
 	public TileEngineSteamHobby()
 	{
@@ -69,7 +70,8 @@ public class TileEngineSteamHobby extends TileEngineSteam implements IInventory,
 			@Override
 			public double getMoreFuel()
 			{
-				if (getEnergyStage() == EnergyStage.OVERHEAT || !isPowered()) return 0;
+				if (getEnergyStage() == EnergyStage.OVERHEAT || !isPowered())
+					return 0;
 				return super.getMoreFuel();
 			}
 		});
@@ -92,11 +94,14 @@ public class TileEngineSteamHobby extends TileEngineSteam implements IInventory,
 	public boolean blockActivated(EntityPlayer player, int side)
 	{
 		ItemStack current = player.getCurrentEquippedItem();
-		if (current != null && current.getItem() != Items.bucket) if (Game.isHost(worldObj))
-		{
-			if (FluidHelper.handleRightClick(this, ForgeDirection.getOrientation(side), player, true, false)) return true;
-		}
-		else if (FluidItemHelper.isContainer(current)) return true;
+		if (current != null && current.getItem() != Items.bucket)
+			if (Game.isHost(worldObj))
+			{
+				if (FluidHelper.handleRightClick(this, ForgeDirection.getOrientation(side), player, true, false))
+					return true;
+			}
+			else if (FluidItemHelper.isContainer(current))
+				return true;
 		return super.blockActivated(player, side);
 	}
 
@@ -113,11 +118,27 @@ public class TileEngineSteamHobby extends TileEngineSteam implements IInventory,
 	}
 
 	@Override
+	public void updateEntity()
+	{
+		super.updateEntity();
+		if (Game.isHost(worldObj))
+		{
+			if (explode)
+			{
+				// TODO gamerforEA use ExplosionByPlayer
+				ExplosionByPlayer.createExplosion(this.getOwnerFake(), this.getWorld(), null, xCoord, yCoord, zCoord, 2, true);
+				explode = false;
+			}
+		}
+	}
+
+	@Override
 	public void burn()
 	{
 		super.burn();
 
-		if (clock % FluidHelper.BUCKET_FILL_TIME == 0) FluidHelper.drainContainers(this, inv, SLOT_LIQUID_INPUT, SLOT_LIQUID_OUTPUT);
+		if (clock % FluidHelper.BUCKET_FILL_TIME == 0)
+			FluidHelper.drainContainers(this, inv, SLOT_LIQUID_INPUT, SLOT_LIQUID_OUTPUT);
 
 		boiler.tick(1);
 	}
@@ -226,7 +247,8 @@ public class TileEngineSteamHobby extends TileEngineSteam implements IInventory,
 	@Override
 	public int[] getAccessibleSlotsFromSide(int side)
 	{
-		if (getOrientation().ordinal() == side) return NO_SLOTS;
+		if (getOrientation().ordinal() == side)
+			return NO_SLOTS;
 		return SLOTS;
 	}
 
@@ -264,23 +286,27 @@ public class TileEngineSteamHobby extends TileEngineSteam implements IInventory,
 	@Override
 	public int fill(ForgeDirection from, FluidStack resource, boolean doFill)
 	{
-		if (isPowered() && Fluids.STEAM.is(resource)) return fill(0, resource, doFill);
-		if (Fluids.WATER.is(resource)) return fill(1, resource, doFill);
+		if (isPowered() && Fluids.STEAM.is(resource))
+			return fill(0, resource, doFill);
+		if (Fluids.WATER.is(resource))
+			return fill(1, resource, doFill);
 		return 0;
 	}
 
 	private int fill(int tankIndex, FluidStack resource, boolean doFill)
 	{
-		if (tankIndex == 1) if (boiler.isSuperHeated() && Steam.BOILERS_EXPLODE)
-		{
-			FluidStack water = getTankManager().get(TANK_WATER).getFluid();
-			if (water == null || water.amount <= 0) explode();
-		}
+		if (tankIndex == 1)
+			if (boiler.isSuperHeated() && Steam.BOILERS_EXPLODE)
+			{
+				FluidStack water = getTankManager().get(TANK_WATER).getFluid();
+				if (water == null || water.amount <= 0)
+					explode();
+			}
 		return getTankManager().fill(tankIndex, resource, doFill);
 	}
 
 	public void explode()
 	{
-		if (Game.isHost(worldObj)) ExplosionByPlayer.createExplosion(this.getOwnerFake(), this.getWorld(), null, xCoord, yCoord, zCoord, 2, true); // TODO gamerforEA use ExplosionByPlayer
+		explode = true;
 	}
 }

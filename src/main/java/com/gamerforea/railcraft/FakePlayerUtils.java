@@ -3,6 +3,13 @@ package com.gamerforea.railcraft;
 import java.lang.ref.WeakReference;
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+
+import com.gamerforea.wgew.cauldron.event.CauldronBlockBreakEvent;
+import com.gamerforea.wgew.cauldron.event.CauldronEntityDamageByEntityEvent;
+import com.mojang.authlib.GameProfile;
+
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
@@ -10,48 +17,56 @@ import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.common.util.FakePlayerFactory;
 
-import org.bukkit.Bukkit;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
-
-import com.gamerforea.wgew.cauldron.event.CauldronBlockBreakEvent;
-import com.gamerforea.wgew.cauldron.event.CauldronEntityDamageByEntityEvent;
-import com.mojang.authlib.GameProfile;
-
 public final class FakePlayerUtils
 {
 	private static WeakReference<FakePlayer> player = new WeakReference<FakePlayer>(null);
 
-	private static WeakReference<FakePlayer> createNewPlayer(World world)
+	public static final FakePlayer getModFake(World world)
 	{
-		return new WeakReference<FakePlayer>(createFakePlayer(UUID.fromString("95762508-ece9-11e4-90ec-1681e6b88ec1"), "[RailCraft]", world));
-	}
-
-	public static final FakePlayer getPlayer(World world)
-	{
-		if (player.get() == null) player = createNewPlayer(world);
-		else player.get().worldObj = world;
+		if (player.get() == null)
+		{
+			GameProfile profile = new GameProfile(UUID.fromString("95762508-ece9-11e4-90ec-1681e6b88ec1"), "[RailCraft]");
+			player = new WeakReference<FakePlayer>(create(world, profile));
+		}
+		else
+			player.get().worldObj = world;
 
 		return player.get();
 	}
 
-	public static FakePlayer createFakePlayer(UUID uuid, String name, World world)
+	public static FakePlayer create(World world, GameProfile profile)
 	{
-		return FakePlayerFactory.get((WorldServer) world, new GameProfile(uuid, name));
+		return FakePlayerFactory.get((WorldServer) world, profile);
 	}
 
-	public static BlockBreakEvent callBlockBreakEvent(int x, int y, int z, EntityPlayer player)
+	public static boolean cantBreak(int x, int y, int z, EntityPlayer player)
 	{
-		CauldronBlockBreakEvent event = new CauldronBlockBreakEvent(player, x, y, z);
-		Bukkit.getServer().getPluginManager().callEvent(event);
-		return event.getBukkitEvent();
+		try
+		{
+			CauldronBlockBreakEvent event = new CauldronBlockBreakEvent(player, x, y, z);
+			Bukkit.getServer().getPluginManager().callEvent(event);
+			return event.getBukkitEvent().isCancelled();
+		}
+		catch (Throwable throwable)
+		{
+			GameProfile profile = player.getGameProfile();
+			System.err.println(String.format("Failed call CauldronBlockBreakEvent [Name: %s, UUID: %s, X: %d, Y: %d, Z: %d]", profile.getName(), profile.getId().toString(), x, y, z));
+			return true;
+		}
 	}
 
-	public static EntityDamageByEntityEvent callEntityDamageByEntityEvent(Entity damager, Entity damagee, DamageCause cause, double damage)
+	public static boolean cantDamage(Entity damager, Entity damagee)
 	{
-		CauldronEntityDamageByEntityEvent event = new CauldronEntityDamageByEntityEvent(damager, damagee, cause, damage);
-		Bukkit.getServer().getPluginManager().callEvent(event);
-		return event.getBukkitEvent();
+		try
+		{
+			CauldronEntityDamageByEntityEvent event = new CauldronEntityDamageByEntityEvent(damager, damagee, DamageCause.ENTITY_ATTACK, 1D);
+			Bukkit.getServer().getPluginManager().callEvent(event);
+			return event.getBukkitEvent().isCancelled();
+		}
+		catch (Throwable throwable)
+		{
+			System.err.println(String.format("Failed call CauldronEntityDamageByEntityEvent [Damager UUID: %s, Damagee UUID: %s]", damager.getUniqueID().toString(), damagee.getUniqueID().toString()));
+			return true;
+		}
 	}
 }

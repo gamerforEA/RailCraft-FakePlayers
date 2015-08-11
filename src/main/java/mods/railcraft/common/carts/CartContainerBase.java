@@ -11,8 +11,14 @@ package mods.railcraft.common.carts;
 import java.util.List;
 import java.util.UUID;
 
+import com.gamerforea.railcraft.FakePlayerUtils;
+import com.google.common.base.Strings;
+import com.mojang.authlib.GameProfile;
+
+import mods.railcraft.api.carts.IItemCart;
 import mods.railcraft.common.blocks.tracks.EnumTrackMeta;
 import mods.railcraft.common.util.misc.Game;
+import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.item.EntityMinecartContainer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -24,51 +30,53 @@ import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.event.entity.minecart.MinecartInteractEvent;
 
-import com.gamerforea.railcraft.FakePlayerUtils;
-import com.google.common.base.Strings;
-
 /**
- *
  * It also contains some generic code that most carts will find useful.
  *
  * @author CovertJaguar <http://www.railcraft.info>
  */
-public abstract class CartContainerBase extends EntityMinecartContainer implements IRailcraftCart
+public abstract class CartContainerBase extends EntityMinecartContainer implements IRailcraftCart, IItemCart
 {
+	private final ForgeDirection[] travelDirectionHistory = new ForgeDirection[2];
 	protected ForgeDirection travelDirection = ForgeDirection.UNKNOWN;
 	protected ForgeDirection verticalTravelDirection = ForgeDirection.UNKNOWN;
-	private final ForgeDirection[] travelDirectionHistory = new ForgeDirection[2];
 
 	// TODO gamerforEA code start
-	public UUID ownerUUID;
-	public String ownerName;
+	public GameProfile ownerProfile;
 	private FakePlayer ownerFake;
 
 	public FakePlayer getOwnerFake()
 	{
-		FakePlayer fake = null;
-		if (this.ownerFake != null) fake = this.ownerFake;
-		else if (this.ownerUUID != null && !Strings.isNullOrEmpty(this.ownerName)) fake = this.ownerFake = FakePlayerUtils.createFakePlayer(this.ownerUUID, this.ownerName, this.worldObj);
-		else fake = FakePlayerUtils.getPlayer(this.worldObj);
-		return fake;
+		if (this.ownerFake != null)
+			return this.ownerFake;
+		else if (this.ownerProfile != null)
+			return this.ownerFake = FakePlayerUtils.create(this.worldObj, this.ownerProfile);
+		else
+			return FakePlayerUtils.getModFake(this.worldObj);
 	}
 
 	@Override
 	protected void writeEntityToNBT(NBTTagCompound nbt)
 	{
 		super.writeEntityToNBT(nbt);
-		if (this.ownerUUID != null) nbt.setString("ownerUUID", this.ownerUUID.toString());
-		if (!Strings.isNullOrEmpty(this.ownerName)) nbt.setString("ownerName", this.ownerName);
+		if (this.ownerProfile != null)
+		{
+			nbt.setString("ownerUUID", this.ownerProfile.getId().toString());
+			nbt.setString("ownerName", this.ownerProfile.getName());
+		}
 	}
 
 	@Override
 	protected void readEntityFromNBT(NBTTagCompound nbt)
 	{
 		super.readEntityFromNBT(nbt);
-		String s = nbt.getString("ownerUUID");
-		if (!Strings.isNullOrEmpty(s)) this.ownerUUID = UUID.fromString(s);
-		s = nbt.getString("ownerName");
-		if (!Strings.isNullOrEmpty(s)) this.ownerName = s;
+		String uuid = nbt.getString("ownerUUID");
+		if (!Strings.isNullOrEmpty(uuid))
+		{
+			String name = nbt.getString("ownerName");
+			if (!Strings.isNullOrEmpty(name))
+				this.ownerProfile = new GameProfile(UUID.fromString(uuid), name);
+		}
 	}
 	// TODO gamerforEA code end
 
@@ -92,7 +100,8 @@ public abstract class CartContainerBase extends EntityMinecartContainer implemen
 	@Override
 	public final boolean interactFirst(EntityPlayer player)
 	{
-		if (MinecraftForge.EVENT_BUS.post(new MinecartInteractEvent(this, player))) return true;
+		if (MinecraftForge.EVENT_BUS.post(new MinecartInteractEvent(this, player)))
+			return true;
 		return doInteract(player);
 	}
 
@@ -110,7 +119,8 @@ public abstract class CartContainerBase extends EntityMinecartContainer implemen
 	public ItemStack getCartItem()
 	{
 		ItemStack stack = EnumCart.fromCart(this).getCartItem();
-		if (hasCustomInventoryName()) stack.setStackDisplayName(getCommandSenderName());
+		if (hasCustomInventoryName())
+			stack.setStackDisplayName(getCommandSenderName());
 		return stack;
 	}
 
@@ -119,10 +129,11 @@ public abstract class CartContainerBase extends EntityMinecartContainer implemen
 	@Override
 	public void setDead()
 	{
-		if (Game.isNotHost(worldObj)) for (int slot = 0; slot < getSizeInventory(); slot++)
-		{
-			setInventorySlotContents(slot, null);
-		}
+		if (Game.isNotHost(worldObj))
+			for (int slot = 0; slot < getSizeInventory(); slot++)
+			{
+				setInventorySlotContents(slot, null);
+			}
 		super.setDead();
 	}
 
@@ -131,7 +142,8 @@ public abstract class CartContainerBase extends EntityMinecartContainer implemen
 	{
 		setDead();
 		List<ItemStack> drops = getItemsDropped();
-		if (this.func_95999_t() != null) drops.get(0).setStackDisplayName(this.func_95999_t());
+		if (this.func_95999_t() != null)
+			drops.get(0).setStackDisplayName(this.func_95999_t());
 		for (ItemStack item : drops)
 		{
 			entityDropItem(item, 0.0F);
@@ -161,32 +173,43 @@ public abstract class CartContainerBase extends EntityMinecartContainer implemen
 		}
 	}
 
-	@SuppressWarnings("incomplete-switch")
 	private ForgeDirection determineTravelDirection(EnumTrackMeta trackMeta)
 	{
 		if (trackMeta.isStraightTrack())
 		{
-			if (posX - prevPosX > 0) return ForgeDirection.EAST;
-			if (posX - prevPosX < 0) return ForgeDirection.WEST;
-			if (posZ - prevPosZ > 0) return ForgeDirection.SOUTH;
-			if (posZ - prevPosZ < 0) return ForgeDirection.NORTH;
+			if (posX - prevPosX > 0)
+				return ForgeDirection.EAST;
+			if (posX - prevPosX < 0)
+				return ForgeDirection.WEST;
+			if (posZ - prevPosZ > 0)
+				return ForgeDirection.SOUTH;
+			if (posZ - prevPosZ < 0)
+				return ForgeDirection.NORTH;
 		}
 		else
 		{
 			switch (trackMeta)
 			{
 				case EAST_SOUTH_CORNER:
-					if (prevPosZ > posZ) return ForgeDirection.EAST;
-					else return ForgeDirection.SOUTH;
+					if (prevPosZ > posZ)
+						return ForgeDirection.EAST;
+					else
+						return ForgeDirection.SOUTH;
 				case WEST_SOUTH_CORNER:
-					if (prevPosZ > posZ) return ForgeDirection.WEST;
-					else return ForgeDirection.SOUTH;
+					if (prevPosZ > posZ)
+						return ForgeDirection.WEST;
+					else
+						return ForgeDirection.SOUTH;
 				case WEST_NORTH_CORNER:
-					if (prevPosZ > posZ) return ForgeDirection.NORTH;
-					else return ForgeDirection.WEST;
+					if (prevPosZ > posZ)
+						return ForgeDirection.NORTH;
+					else
+						return ForgeDirection.WEST;
 				case EAST_NORTH_CORNER:
-					if (prevPosZ > posZ) return ForgeDirection.NORTH;
-					else return ForgeDirection.EAST;
+					if (prevPosZ > posZ)
+						return ForgeDirection.NORTH;
+					else
+						return ForgeDirection.EAST;
 			}
 		}
 		return ForgeDirection.UNKNOWN;
@@ -194,7 +217,26 @@ public abstract class CartContainerBase extends EntityMinecartContainer implemen
 
 	private ForgeDirection determineVerticalTravelDirection(EnumTrackMeta trackMeta)
 	{
-		if (trackMeta.isSlopeTrack()) return prevPosY < posY ? ForgeDirection.UP : ForgeDirection.DOWN;
+		if (trackMeta.isSlopeTrack())
+			return prevPosY < posY ? ForgeDirection.UP : ForgeDirection.DOWN;
 		return ForgeDirection.UNKNOWN;
+	}
+
+	@Override
+	public boolean canPassItemRequests()
+	{
+		return false;
+	}
+
+	@Override
+	public boolean canAcceptPushedItem(EntityMinecart requester, ItemStack stack)
+	{
+		return false;
+	}
+
+	@Override
+	public boolean canProvidePulledItem(EntityMinecart requester, ItemStack stack)
+	{
+		return false;
 	}
 }

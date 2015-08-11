@@ -10,6 +10,11 @@ package mods.railcraft.common.fluids;
 
 import java.util.Random;
 
+import com.gamerforea.railcraft.ExplosionByPlayer;
+
+import cpw.mods.fml.client.FMLClientHandler;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import mods.railcraft.client.particles.EntityDropParticleFX;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -22,12 +27,6 @@ import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.BlockFluidClassic;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
-
-import com.gamerforea.railcraft.ExplosionByPlayer;
-
-import cpw.mods.fml.client.FMLClientHandler;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 /**
  *
@@ -86,7 +85,8 @@ public class BlockRailcraftFluid extends BlockFluidClassic
 	{
 		IIcon still = iconRegister.registerIcon("railcraft:fluids/" + fluidName + "_still");
 		IIcon flowing = still;
-		if (hasFlowIcon) flowing = iconRegister.registerIcon("railcraft:fluids/" + fluidName + "_flow");
+		if (hasFlowIcon)
+			flowing = iconRegister.registerIcon("railcraft:fluids/" + fluidName + "_flow");
 		this.theIcon = new IIcon[] { still, flowing };
 	}
 
@@ -96,7 +96,8 @@ public class BlockRailcraftFluid extends BlockFluidClassic
 		super.onNeighborBlockChange(world, x, y, z, block);
 		if (flammable && world.provider.dimensionId == -1)
 		{
-			ExplosionByPlayer.newExplosion(null, world, null, x, y, z, 4F, true, true); // TODO gamerforEA use ExplosionByPlayer
+			// TODO gamerforEA use ExplosionByPlayer
+			ExplosionByPlayer.newExplosion(null, world, null, x, y, z, 4F, true, true);
 			world.setBlockToAir(x, y, z);
 		}
 	}

@@ -11,6 +11,8 @@ package mods.railcraft.common.carts;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.gamerforea.railcraft.FakePlayerUtils;
+
 import mods.railcraft.api.carts.CartTools;
 import mods.railcraft.api.tracks.RailTools;
 import mods.railcraft.common.util.misc.Game;
@@ -18,8 +20,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockRailBase;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
-
-import com.gamerforea.railcraft.FakePlayerUtils;
 
 /**
  * @author CovertJaguar <http://www.railcraft.info>
@@ -68,9 +68,11 @@ public abstract class CartMaintenanceBase extends CartContainerBase
 	public void onUpdate()
 	{
 		super.onUpdate();
-		if (Game.isNotHost(worldObj)) return;
+		if (Game.isNotHost(worldObj))
+			return;
 
-		if (isBlinking()) setBlink((byte) (getBlink() - 1));
+		if (isBlinking())
+			setBlink((byte) (getBlink() - 1));
 	}
 
 	@Override
@@ -110,8 +112,10 @@ public abstract class CartMaintenanceBase extends CartContainerBase
 		if (trackStock != null)
 		{
 			// TODO gamerforEA code start
-			if (FakePlayerUtils.callBlockBreakEvent(x, y, z, this.getOwnerFake()).isCancelled()) return false;
+			if (FakePlayerUtils.cantBreak(x, y, z, this.getOwnerFake()))
+				return false;
 			// TODO gamerforEA code end
+
 			if (RailTools.placeRailAt(trackStock, worldObj, x, y, z))
 			{
 				worldObj.setBlockMetadataWithNotify(x, y, z, meta, 0x02);
@@ -128,18 +132,22 @@ public abstract class CartMaintenanceBase extends CartContainerBase
 
 	protected int removeOldTrack(int x, int y, int z, Block block)
 	{
-		int meta = worldObj.getBlockMetadata(x, y, z);
 		// TODO gamerforEA code start
-		if (FakePlayerUtils.callBlockBreakEvent(x, y, z, this.getOwnerFake()).isCancelled()) return meta;
+		if (FakePlayerUtils.cantBreak(x, y, z, this.getOwnerFake()))
+			return worldObj.getBlockMetadata(x, y, z);
 		// TODO gamerforEA code end
+
 		List<ItemStack> drops = block.getDrops(worldObj, x, y, z, 0, 0);
 
 		for (ItemStack stack : drops)
 		{
 			CartTools.offerOrDropItem(this, stack);
 		}
-		if (((BlockRailBase) block).isPowered()) meta = meta & 7;
+		int meta = worldObj.getBlockMetadata(x, y, z);
+		if (((BlockRailBase) block).isPowered())
+			meta = meta & 7;
 		worldObj.setBlockToAir(x, y, z);
 		return meta;
 	}
+
 }

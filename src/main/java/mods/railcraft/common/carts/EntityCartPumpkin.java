@@ -13,6 +13,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.gamerforea.railcraft.ExplosionByPlayer;
+
 import mods.railcraft.common.core.RailcraftConfig;
 import mods.railcraft.common.util.inventory.InvTools;
 import mods.railcraft.common.util.misc.Game;
@@ -29,8 +31,6 @@ import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionHelper;
 import net.minecraft.world.World;
-
-import com.gamerforea.railcraft.ExplosionByPlayer;
 
 public class EntityCartPumpkin extends EntityCartTNTWood
 {
@@ -67,7 +67,8 @@ public class EntityCartPumpkin extends EntityCartTNTWood
 		{
 			List effects = PotionHelper.getPotionEffects(meta, false);
 
-			if (effects != null && !effects.isEmpty()) potions.add(meta);
+			if (effects != null && !effects.isEmpty())
+				potions.add(meta);
 		}
 	}
 
@@ -103,7 +104,8 @@ public class EntityCartPumpkin extends EntityCartTNTWood
 			items.add(new ItemStack(Items.minecart));
 			items.add(new ItemStack(Blocks.pumpkin));
 		}
-		else items.add(getCartItem());
+		else
+			items.add(getCartItem());
 		return items;
 	}
 
@@ -124,7 +126,8 @@ public class EntityCartPumpkin extends EntityCartTNTWood
 	{
 		if (Game.isHost(getWorld()))
 		{
-			ExplosionByPlayer.createExplosion(this.getOwnerFake(), this.getWorld(), this, posX, posY, posZ, getBlastRadius(), true); // TODO gamerforEA use ExplosionByPlayer
+			// TODO gamerforEA use ExplosionByPlayer
+			ExplosionByPlayer.createExplosion(this.getOwnerFake(), this.getWorld(), this, posX, posY, posZ, getBlastRadius(), true);
 			setDead();
 			spawnMob();
 			spawnPotion();
@@ -138,7 +141,8 @@ public class EntityCartPumpkin extends EntityCartTNTWood
 			int index = rand.nextInt(mobs.size());
 			String mob = mobs.get(index);
 			int weight = rand.nextInt(100);
-			if (mobWeights.get(mob) >= weight) return mob;
+			if (mobWeights.get(mob) >= weight)
+				return mob;
 		}
 	}
 
@@ -151,7 +155,8 @@ public class EntityCartPumpkin extends EntityCartTNTWood
 		{
 			Entity mob = EntityList.createEntityByName(mobName, this.worldObj);
 
-			if (mob == null) return;
+			if (mob == null)
+				return;
 
 			double x = posX + (rand.nextDouble() - rand.nextDouble()) * SPAWN_DIST;
 			double y = (double) (posY + mob.height + rand.nextInt(3));
@@ -179,12 +184,14 @@ public class EntityCartPumpkin extends EntityCartTNTWood
 
 					mob.setCurrentItemOrArmor(4, new ItemStack(this.rand.nextFloat() < 0.25F ? Blocks.lit_pumpkin : Blocks.pumpkin));
 				}
-				else if (living != null) living.onSpawnWithEgg(null);
+				else if (living != null)
+					living.onSpawnWithEgg(null);
 
 				this.worldObj.spawnEntityInWorld(mob);
 				this.worldObj.playAuxSFX(2004, (int) x, (int) y, (int) z, 0);
 
-				if (living != null) living.spawnExplosionParticle();
+				if (living != null)
+					living.spawnExplosionParticle();
 			}
 		}
 	}

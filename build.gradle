@@ -19,20 +19,21 @@ apply plugin: 'forge'
 
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
-version = "9.6.1.0"
+version = "9.7.0.0"
 group= "mods.railcraft"
 archivesBaseName = "Railcraft_1.7.10"
 
 minecraft {
-	version = "1.7.10-10.13.2.1291"
+	version = "1.7.10-10.13.4.1490-1.7.10"
 	runDir = "eclipse"
 }
 
 dependencies {
-	compile files('lib/bukkit-api.jar', 'lib/WorldGuardEventWrapper.jar', 'lib/Railcraft_1.7.10-9.6.1.0-dev.jar')
+	compile files('lib/bukkit-api.jar', 'lib/WorldGuardEventWrapper.jar')
+	compile fileTree(dir: 'lib', include: '*-dev.jar')
 }
 
 jar {
-	from zipTree('lib/Railcraft_1.7.10-9.6.1.0.jar')
+	from zipTree('lib/Railcraft_1.7.10-9.7.0.0.jar')
 	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }

@@ -12,6 +12,8 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+import com.gamerforea.railcraft.FakePlayerUtils;
+
 import mods.railcraft.api.electricity.IElectricGrid;
 import mods.railcraft.api.tracks.ITrackInstance;
 import mods.railcraft.api.tracks.ITrackLockdown;
@@ -36,8 +38,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.IIcon;
 import net.minecraftforge.common.util.ForgeDirection;
 
-import com.gamerforea.railcraft.FakePlayerUtils;
-
 /**
  *
  * @author CovertJaguar <http://www.railcraft.info>
@@ -59,7 +59,6 @@ public class TileForceTrackEmitter extends TileMachineBase implements IElectricG
 	{
 		EXTENDED, RETRACTED, EXTENDING, RETRACTING, HALTED;
 
-		@SuppressWarnings("incomplete-switch")
 		private void doAction(TileForceTrackEmitter emitter)
 		{
 			switch (this)
@@ -94,7 +93,8 @@ public class TileForceTrackEmitter extends TileMachineBase implements IElectricG
 
 	private void checkRedstone()
 	{
-		if (Game.isNotHost(getWorld())) return;
+		if (Game.isNotHost(getWorld()))
+			return;
 		boolean p = PowerPlugin.isBlockBeingPowered(worldObj, xCoord, yCoord, zCoord);
 		if (powered != p)
 		{
@@ -116,27 +116,30 @@ public class TileForceTrackEmitter extends TileMachineBase implements IElectricG
 		}
 	}
 
-	@SuppressWarnings("incomplete-switch")
 	@Override
 	public void updateEntity()
 	{
 		super.updateEntity();
 
-		if (Game.isNotHost(getWorld())) return;
+		if (Game.isNotHost(getWorld()))
+			return;
 
 		double draw = getDraw(numTracks);
-		if (powered && chargeHandler.removeCharge(draw) >= draw) switch (state)
-		{
-			case RETRACTED:
-			case RETRACTING:
-			case HALTED:
-				state = State.EXTENDING;
-				break;
-			case EXTENDED:
-				if (clock % TICKS_PER_REFRESH == 0) state = State.EXTENDING;
-				break;
-		}
-		else if (state == State.EXTENDED || state == State.EXTENDING || state == State.HALTED) state = State.RETRACTING;
+		if (powered && chargeHandler.removeCharge(draw) >= draw)
+			switch (state)
+			{
+				case RETRACTED:
+				case RETRACTING:
+				case HALTED:
+					state = State.EXTENDING;
+					break;
+				case EXTENDED:
+					if (clock % TICKS_PER_REFRESH == 0)
+						state = State.EXTENDING;
+					break;
+			}
+		else if (state == State.EXTENDED || state == State.EXTENDING || state == State.HALTED)
+			state = State.RETRACTING;
 
 		state.doAction(this);
 
@@ -155,14 +158,17 @@ public class TileForceTrackEmitter extends TileMachineBase implements IElectricG
 		{
 			TileTrack trackTile = (TileTrack) tile;
 			ITrackInstance track = trackTile.getTrackInstance();
-			if (track instanceof ITrackLockdown) ((ITrackLockdown) track).releaseCart();
+			if (track instanceof ITrackLockdown)
+				((ITrackLockdown) track).releaseCart();
 		}
 	}
 
 	private void extend()
 	{
-		if (!hasPowerToExtend()) state = State.HALTED;
-		if (numTracks >= MAX_TRACKS) state = State.EXTENDED;
+		if (!hasPowerToExtend())
+			state = State.HALTED;
+		if (numTracks >= MAX_TRACKS)
+			state = State.EXTENDED;
 		else if (clock % TICKS_PER_ACTION == 0)
 		{
 			int x = xCoord + (numTracks + 1) * facing.offsetX;
@@ -172,11 +178,15 @@ public class TileForceTrackEmitter extends TileMachineBase implements IElectricG
 			{
 				Block block = WorldPlugin.getBlock(worldObj, x, y, z);
 				EnumTrackMeta meta;
-				if (facing == ForgeDirection.NORTH || facing == ForgeDirection.SOUTH) meta = EnumTrackMeta.NORTH_SOUTH;
-				else meta = EnumTrackMeta.EAST_WEST;
-				if (!placeTrack(x, y, z, block, meta) && !claimTrack(x, y, z, block, meta)) state = State.EXTENDED;
+				if (facing == ForgeDirection.NORTH || facing == ForgeDirection.SOUTH)
+					meta = EnumTrackMeta.NORTH_SOUTH;
+				else
+					meta = EnumTrackMeta.EAST_WEST;
+				if (!placeTrack(x, y, z, block, meta) && !claimTrack(x, y, z, block, meta))
+					state = State.EXTENDED;
 			}
-			else state = State.HALTED;
+			else
+				state = State.HALTED;
 		}
 	}
 
@@ -185,8 +195,10 @@ public class TileForceTrackEmitter extends TileMachineBase implements IElectricG
 		if (WorldPlugin.blockIsAir(worldObj, x, y, z, block))
 		{
 			// TODO gamerforEA code start
-			if (FakePlayerUtils.callBlockBreakEvent(x, y, z, this.getOwnerFake()).isCancelled()) return false;
+			if (FakePlayerUtils.cantBreak(x, y, z, this.getOwnerFake()))
+				return false;
 			// TODO gamerforEA code end
+
 			spawnParticles(x, y, z);
 			TileTrack track = TrackTools.placeTrack(EnumTrack.FORCE.getTrackSpec(), worldObj, x, y, z, meta.ordinal());
 			((TrackForce) track.getTrackInstance()).setEmitter(this);
@@ -198,10 +210,13 @@ public class TileForceTrackEmitter extends TileMachineBase implements IElectricG
 
 	private boolean claimTrack(int x, int y, int z, Block block, EnumTrackMeta meta)
 	{
-		if (block != RailcraftBlocks.getBlockTrack()) return false;
-		if (TrackTools.getTrackMetaEnum(worldObj, block, null, x, y, z) != meta) return false;
+		if (block != RailcraftBlocks.getBlockTrack())
+			return false;
+		if (TrackTools.getTrackMetaEnum(worldObj, block, null, x, y, z) != meta)
+			return false;
 		TileEntity tile = WorldPlugin.getBlockTile(worldObj, x, y, z);
-		if (!TrackTools.isTrackSpec(tile, EnumTrack.FORCE.getTrackSpec())) return false;
+		if (!TrackTools.isTrackSpec(tile, EnumTrack.FORCE.getTrackSpec()))
+			return false;
 		TrackForce track = (TrackForce) ((TileTrack) tile).getTrackInstance();
 		TileForceTrackEmitter emitter = track.getEmitter();
 		if (emitter == null || emitter == this)
@@ -230,7 +245,8 @@ public class TileForceTrackEmitter extends TileMachineBase implements IElectricG
 
 	private void retract()
 	{
-		if (numTracks <= 0) state = State.RETRACTED;
+		if (numTracks <= 0)
+			state = State.RETRACTED;
 		else if (clock % TICKS_PER_ACTION == 0)
 		{
 			int x = xCoord + numTracks * facing.offsetX;
@@ -245,8 +261,10 @@ public class TileForceTrackEmitter extends TileMachineBase implements IElectricG
 		if (WorldPlugin.blockExists(worldObj, x, y, z) && TrackTools.isTrackAt(worldObj, x, y, z, EnumTrack.FORCE))
 		{
 			// TODO gamerforEA code start
-			if (FakePlayerUtils.callBlockBreakEvent(x, y, z, this.getOwnerFake()).isCancelled()) return;
+			if (FakePlayerUtils.cantBreak(x, y, z, this.getOwnerFake()))
+				return;
 			// TODO gamerforEA code end
+
 			spawnParticles(x, y, z);
 			WorldPlugin.setBlockToAir(worldObj, x, y, z);
 		}
@@ -274,18 +292,24 @@ public class TileForceTrackEmitter extends TileMachineBase implements IElectricG
 	@Override
 	public IIcon getIcon(int side)
 	{
-		if (side == facing.ordinal()) return getMachineType().getTexture(powered ? 7 : 8);
+		if (side == facing.ordinal())
+			return getMachineType().getTexture(powered ? 7 : 8);
 		return getMachineType().getTexture(powered ? 0 : 6);
 	}
 
 	@Override
 	public boolean rotateBlock(ForgeDirection axis)
 	{
-		if (Game.isNotHost(worldObj)) return false;
-		if (state != State.RETRACTED) return false;
-		if (axis == ForgeDirection.UP || axis == ForgeDirection.DOWN) return false;
-		if (facing == axis) facing = axis.getOpposite();
-		else facing = axis;
+		if (Game.isNotHost(worldObj))
+			return false;
+		if (state != State.RETRACTED)
+			return false;
+		if (axis == ForgeDirection.UP || axis == ForgeDirection.DOWN)
+			return false;
+		if (facing == axis)
+			facing = axis.getOpposite();
+		else
+			facing = axis;
 		numTracks = 0;
 		markBlockForUpdate();
 		notifyBlocksOfNeighborChange();
@@ -342,11 +366,13 @@ public class TileForceTrackEmitter extends TileMachineBase implements IElectricG
 			update = true;
 		}
 
-		if (update) markBlockForUpdate();
+		if (update)
+			markBlockForUpdate();
 	}
 
 	public ForgeDirection getFacing()
 	{
 		return facing;
 	}
+
 }

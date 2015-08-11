@@ -12,6 +12,8 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+import com.gamerforea.railcraft.ExplosionByPlayer;
+
 import mods.railcraft.api.carts.CartTools;
 import mods.railcraft.api.carts.IExplosiveCart;
 import mods.railcraft.common.gui.EnumGui;
@@ -27,8 +29,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
 import net.minecraft.world.World;
-
-import com.gamerforea.railcraft.ExplosionByPlayer;
 
 public abstract class CartExplosiveBase extends CartBase implements IExplosiveCart, IGuiReturnHandler
 {
@@ -46,6 +46,7 @@ public abstract class CartExplosiveBase extends CartBase implements IExplosiveCa
 	public CartExplosiveBase(World world)
 	{
 		super(world);
+
 	}
 
 	public CartExplosiveBase(World world, double x, double y, double z)
@@ -109,7 +110,8 @@ public abstract class CartExplosiveBase extends CartBase implements IExplosiveCa
 		isExploding = true;
 		if (Game.isHost(getWorld()))
 		{
-			ExplosionByPlayer.createExplosion(this.getOwnerFake(), this.getWorld(), this, posX, posY, posZ, blastRadius, true); // TODO gamerforEA use ExplosionByPlayer
+			// TODO gamerforEA use ExplosionByPlayer
+			ExplosionByPlayer.createExplosion(this.getOwnerFake(), this.getWorld(), this, posX, posY, posZ, blastRadius, true);
 			setDead();
 		}
 	}
