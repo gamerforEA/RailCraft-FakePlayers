@@ -1,6 +1,6 @@
-/* 
+/*
  * Copyright (c) CovertJaguar, 2014 http://railcraft.info
- * 
+ *
  * This code is the property of CovertJaguar
  * and may only be used with explicit written
  * permission unless otherwise specified on the
@@ -182,14 +182,14 @@ public class EntityCartGift extends EntityCartTNTWood
 	public EntityCartGift(World world, double d, double d1, double d2)
 	{
 		this(world);
-		setPosition(d, d1 + (double) yOffset, d2);
-		motionX = 0.0D;
-		motionY = 0.0D;
-		motionZ = 0.0D;
-		prevPosX = d;
-		prevPosY = d1;
-		prevPosZ = d2;
-		setBlastRadius(1.5f);
+		this.setPosition(d, d1 + this.yOffset, d2);
+		this.motionX = 0.0D;
+		this.motionY = 0.0D;
+		this.motionZ = 0.0D;
+		this.prevPosX = d;
+		this.prevPosY = d1;
+		this.prevPosZ = d2;
+		this.setBlastRadius(1.5f);
 	}
 
 	@Override
@@ -202,7 +202,7 @@ public class EntityCartGift extends EntityCartTNTWood
 			items.add(new ItemStack(Blocks.pumpkin));
 		}
 		else
-			items.add(getCartItem());
+			items.add(this.getCartItem());
 		return items;
 	}
 
@@ -233,19 +233,19 @@ public class EntityCartGift extends EntityCartTNTWood
 	@Override
 	public void explode()
 	{
-		if (Game.isHost(getWorld()))
+		if (Game.isHost(this.getWorld()))
 		{
 			// TODO gamerforEA use ExplosionByPlayer
-			ExplosionByPlayer.createExplosion(this.getOwnerFake(), this.getWorld(), this, posX, posY, posZ, getBlastRadius(), true);
-			setDead();
+			ExplosionByPlayer.createExplosion(this.fake.getPlayer(), this.getWorld(), this, this.posX, this.posY, this.posZ, this.getBlastRadius(), true);
+			this.setDead();
 
-			if (rand.nextInt(100) >= 50)
+			if (this.rand.nextInt(100) >= 50)
 			{
-				spawnGift();
-				spawnGift();
+				this.spawnGift();
+				this.spawnGift();
 			}
 			else
-				spawnCoal();
+				this.spawnCoal();
 		}
 	}
 
@@ -253,9 +253,9 @@ public class EntityCartGift extends EntityCartTNTWood
 	{
 		while (true)
 		{
-			int index = rand.nextInt(gifts.size());
+			int index = this.rand.nextInt(gifts.size());
 			Gift gift = gifts.get(index);
-			int weight = rand.nextInt(100);
+			int weight = this.rand.nextInt(100);
 			if (gift.chance >= weight)
 				return gift;
 		}
@@ -263,37 +263,37 @@ public class EntityCartGift extends EntityCartTNTWood
 
 	private void spawnGift()
 	{
-		Gift gift = getGift();
+		Gift gift = this.getGift();
 
 		if (gift.stack == null)
 		{
-			spawnPotion();
+			this.spawnPotion();
 			return;
 		}
 
-		double x = posX + (rand.nextDouble() - rand.nextDouble()) * SPAWN_DIST;
-		double y = (double) (posY + 1 + rand.nextInt(3) - 1);
-		double z = posZ + (rand.nextDouble() - rand.nextDouble()) * SPAWN_DIST;
-		InvTools.dropItem(gift.stack.copy(), worldObj, x, y, z);
+		double x = this.posX + (this.rand.nextDouble() - this.rand.nextDouble()) * SPAWN_DIST;
+		double y = this.posY + 1 + this.rand.nextInt(3) - 1;
+		double z = this.posZ + (this.rand.nextDouble() - this.rand.nextDouble()) * SPAWN_DIST;
+		InvTools.dropItem(gift.stack.copy(), this.worldObj, x, y, z);
 	}
 
 	private void spawnCoal()
 	{
-		double x = posX + (rand.nextDouble() - rand.nextDouble()) * SPAWN_DIST;
-		double y = (double) (posY + 1 + rand.nextInt(3) - 1);
-		double z = posZ + (rand.nextDouble() - rand.nextDouble()) * SPAWN_DIST;
-		InvTools.dropItem(new ItemStack(Items.coal), worldObj, x, y, z);
+		double x = this.posX + (this.rand.nextDouble() - this.rand.nextDouble()) * SPAWN_DIST;
+		double y = this.posY + 1 + this.rand.nextInt(3) - 1;
+		double z = this.posZ + (this.rand.nextDouble() - this.rand.nextDouble()) * SPAWN_DIST;
+		InvTools.dropItem(new ItemStack(Items.coal), this.worldObj, x, y, z);
 	}
 
 	private void spawnPotion()
 	{
-		int meta = potions.get(rand.nextInt(potions.size()));
+		int meta = potions.get(this.rand.nextInt(potions.size()));
 		ItemStack potion = new ItemStack(Items.potionitem, 1, meta);
 
-		double x = posX + (rand.nextDouble() - rand.nextDouble()) * SPAWN_DIST;
-		double y = (double) (posY + 1 + rand.nextInt(3) - 1);
-		double z = posZ + (rand.nextDouble() - rand.nextDouble()) * SPAWN_DIST;
-		InvTools.dropItem(potion, worldObj, x, y, z);
+		double x = this.posX + (this.rand.nextDouble() - this.rand.nextDouble()) * SPAWN_DIST;
+		double y = this.posY + 1 + this.rand.nextInt(3) - 1;
+		double z = this.posZ + (this.rand.nextDouble() - this.rand.nextDouble()) * SPAWN_DIST;
+		InvTools.dropItem(potion, this.worldObj, x, y, z);
 	}
 
 }

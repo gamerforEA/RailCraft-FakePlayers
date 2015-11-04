@@ -80,9 +80,9 @@ public abstract class CartTools
 
 			// TODO gamerforEA code start
 			if (cart instanceof CartBase)
-				((CartBase) cart).ownerProfile = owner;
+				((CartBase) cart).fake.profile = owner;
 			else if (cart instanceof CartContainerBase)
-				((CartContainerBase) cart).ownerProfile = owner;
+				((CartContainerBase) cart).fake.profile = owner;
 			// TODO gamerforEA code end
 		}
 	}
@@ -207,18 +207,14 @@ public abstract class CartTools
 	{
 		List<EntityMinecart> list = new ArrayList<EntityMinecart>();
 		for (int side = 0; side < 6; side++)
-		{
 			list.addAll(getMinecartsOnSide(world, i, j, k, sensitivity, ForgeDirection.getOrientation(side)));
-		}
 
 		if (type == null)
 			return !list.isEmpty();
 		else
 			for (EntityMinecart cart : list)
-			{
-				if ((subclass && type.isInstance(cart)) || cart.getClass() == type)
+				if (subclass && type.isInstance(cart) || cart.getClass() == type)
 					return true;
-			}
 		return false;
 	}
 
@@ -235,10 +231,8 @@ public abstract class CartTools
 			return !list.isEmpty();
 		else
 			for (EntityMinecart cart : list)
-			{
-				if ((subclass && type.isInstance(cart)) || cart.getClass() == type)
+				if (subclass && type.isInstance(cart) || cart.getClass() == type)
 					return true;
-			}
 		return false;
 	}
 
@@ -246,9 +240,7 @@ public abstract class CartTools
 	{
 		List<EntityMinecart> carts = new ArrayList<EntityMinecart>();
 		for (int side = 0; side < 6; side++)
-		{
 			carts.addAll(getMinecartsOnSide(world, i, j, k, sensitivity, ForgeDirection.getOrientation(side)));
-		}
 
 		return carts;
 	}
@@ -258,15 +250,11 @@ public abstract class CartTools
 		List<EntityMinecart> list = new ArrayList<EntityMinecart>();
 		List<EntityMinecart> carts = new ArrayList<EntityMinecart>();
 		for (int side = 0; side < 6; side++)
-		{
 			list.addAll(getMinecartsOnSide(world, i, j, k, sensitivity, ForgeDirection.getOrientation(side)));
-		}
 
 		for (EntityMinecart cart : list)
-		{
-			if ((subclass && type.isInstance(cart)) || cart.getClass() == type)
+			if (subclass && type.isInstance(cart) || cart.getClass() == type)
 				carts.add(cart);
-		}
 		return carts;
 	}
 
@@ -322,9 +310,7 @@ public abstract class CartTools
 	public static EntityMinecart getMinecartOnSide(World world, int i, int j, int k, float sensitivity, ForgeDirection side)
 	{
 		for (EntityMinecart cart : getMinecartsOnSide(world, i, j, k, sensitivity, side))
-		{
 			return cart;
-		}
 		return null;
 	}
 
@@ -336,10 +322,8 @@ public abstract class CartTools
 	public static <T extends EntityMinecart> T getMinecartOnSide(World world, int i, int j, int k, float sensitivity, ForgeDirection side, Class<T> type, boolean subclass)
 	{
 		for (EntityMinecart cart : getMinecartsOnSide(world, i, j, k, sensitivity, side))
-		{
-			if (type == null || (subclass && type.isInstance(cart)) || cart.getClass() == type)
+			if (type == null || subclass && type.isInstance(cart) || cart.getClass() == type)
 				return (T) cart;
-		}
 		return null;
 	}
 

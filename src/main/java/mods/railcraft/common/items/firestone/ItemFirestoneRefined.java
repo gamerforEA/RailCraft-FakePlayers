@@ -1,6 +1,6 @@
-/* 
+/*
  * Copyright (c) CovertJaguar, 2014 http://railcraft.info
- * 
+ *
  * This code is the property of CovertJaguar
  * and may only be used with explicit written
  * permission unless otherwise specified on the
@@ -10,7 +10,7 @@ package mods.railcraft.common.items.firestone;
 
 import java.util.List;
 
-import com.gamerforea.railcraft.FakePlayerUtils;
+import com.gamerforea.eventhelper.util.EventUtils;
 
 import mods.railcraft.common.core.RailcraftConfig;
 import mods.railcraft.common.gui.tooltips.ToolTip;
@@ -63,14 +63,14 @@ public class ItemFirestoneRefined extends ItemFirestoneBase
 
 	public ItemFirestoneRefined()
 	{
-		setMaxStackSize(1);
-		setMaxDamage(5000);
+		this.setMaxStackSize(1);
+		this.setMaxDamage(5000);
 	}
 
 	@Override
 	public void getSubItems(Item item, CreativeTabs tab, List list)
 	{
-		list.add(new ItemStack(this, 1, getMaxDamage()));
+		list.add(new ItemStack(this, 1, this.getMaxDamage()));
 		list.add(new ItemStack(this, 1, 0));
 	}
 
@@ -101,7 +101,7 @@ public class ItemFirestoneRefined extends ItemFirestoneBase
 	@Override
 	public int getHeatValue(ItemStack stack)
 	{
-		if (stack.getItemDamage() < getMaxDamage())
+		if (stack.getItemDamage() < this.getMaxDamage())
 			return HEAT;
 		return 0;
 	}
@@ -109,9 +109,9 @@ public class ItemFirestoneRefined extends ItemFirestoneBase
 	@Override
 	public void addInformation(ItemStack stack, EntityPlayer player, List info, boolean adv)
 	{
-		String tipTag = getUnlocalizedName() + ".tip.charged";
+		String tipTag = this.getUnlocalizedName() + ".tip.charged";
 		if (stack.getItemDamage() >= stack.getMaxDamage() - 5)
-			tipTag = getUnlocalizedName() + ".tip.empty";
+			tipTag = this.getUnlocalizedName() + ".tip.empty";
 		ToolTip tip = ToolTip.buildToolTip(tipTag);
 		if (tip != null)
 			info.addAll(tip.convertToStrings());
@@ -132,7 +132,7 @@ public class ItemFirestoneRefined extends ItemFirestoneBase
 					if (cooked != null && cooked.getItem() instanceof ItemBlock)
 					{
 						// TODO gamerforEA code start
-						if (FakePlayerUtils.cantBreak(x, y, z, player))
+						if (EventUtils.cantBreak(player, x, y, z))
 							return false;
 						// TODO gamerforEA cod end
 
@@ -167,7 +167,7 @@ public class ItemFirestoneRefined extends ItemFirestoneBase
 		if (player.canPlayerEdit(x, y, z, side, stack) && world.isAirBlock(x, y, z))
 		{
 			// TODO gamerforEA code start
-			if (FakePlayerUtils.cantBreak(x, y, z, player))
+			if (EventUtils.cantBreak(player, x, y, z))
 				return false;
 			// TODO gamerforEA cod end
 

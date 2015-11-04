@@ -1,6 +1,6 @@
-/* 
+/*
  * Copyright (c) CovertJaguar, 2014 http://railcraft.info
- * 
+ *
  * This code is the property of CovertJaguar
  * and may only be used with explicit written
  * permission unless otherwise specified on the
@@ -46,12 +46,12 @@ public class BlockRailcraftFluid extends BlockFluidClassic
 	public BlockRailcraftFluid(Fluid fluid, Material material)
 	{
 		super(fluid, material);
-		setDensity(fluid.getDensity());
+		this.setDensity(fluid.getDensity());
 	}
 
 	public BlockRailcraftFluid setNoFlow()
 	{
-		hasFlowIcon = false;
+		this.hasFlowIcon = false;
 		return this;
 	}
 
@@ -64,7 +64,7 @@ public class BlockRailcraftFluid extends BlockFluidClassic
 	@Override
 	public Fluid getFluid()
 	{
-		return FluidRegistry.getFluid(fluidName);
+		return FluidRegistry.getFluid(this.fluidName);
 	}
 
 	@Override
@@ -83,10 +83,10 @@ public class BlockRailcraftFluid extends BlockFluidClassic
 	@SideOnly(Side.CLIENT)
 	public void registerBlockIcons(IIconRegister iconRegister)
 	{
-		IIcon still = iconRegister.registerIcon("railcraft:fluids/" + fluidName + "_still");
+		IIcon still = iconRegister.registerIcon("railcraft:fluids/" + this.fluidName + "_still");
 		IIcon flowing = still;
-		if (hasFlowIcon)
-			flowing = iconRegister.registerIcon("railcraft:fluids/" + fluidName + "_flow");
+		if (this.hasFlowIcon)
+			flowing = iconRegister.registerIcon("railcraft:fluids/" + this.fluidName + "_flow");
 		this.theIcon = new IIcon[] { still, flowing };
 	}
 
@@ -94,7 +94,7 @@ public class BlockRailcraftFluid extends BlockFluidClassic
 	public void onNeighborBlockChange(World world, int x, int y, int z, Block block)
 	{
 		super.onNeighborBlockChange(world, x, y, z, block);
-		if (flammable && world.provider.dimensionId == -1)
+		if (this.flammable && world.provider.dimensionId == -1)
 		{
 			// TODO gamerforEA use ExplosionByPlayer
 			ExplosionByPlayer.newExplosion(null, world, null, x, y, z, 4F, true, true);
@@ -117,25 +117,25 @@ public class BlockRailcraftFluid extends BlockFluidClassic
 	@Override
 	public int getFireSpreadSpeed(IBlockAccess world, int x, int y, int z, ForgeDirection face)
 	{
-		return flammable ? 300 : 0;
+		return this.flammable ? 300 : 0;
 	}
 
 	@Override
 	public int getFlammability(IBlockAccess world, int x, int y, int z, ForgeDirection face)
 	{
-		return flammability;
+		return this.flammability;
 	}
 
 	@Override
 	public boolean isFlammable(IBlockAccess world, int x, int y, int z, ForgeDirection face)
 	{
-		return flammable;
+		return this.flammable;
 	}
 
 	@Override
 	public boolean isFireSource(World world, int x, int y, int z, ForgeDirection side)
 	{
-		return flammable && flammability == 0;
+		return this.flammable && this.flammability == 0;
 	}
 
 	public BlockRailcraftFluid setParticleColor(float particleRed, float particleGreen, float particleBlue)
@@ -154,11 +154,11 @@ public class BlockRailcraftFluid extends BlockFluidClassic
 
 		if (rand.nextInt(10) == 0 && World.doesBlockHaveSolidTopSurface(world, x, y - 1, z) && !world.getBlock(x, y - 2, z).getMaterial().blocksMovement())
 		{
-			double px = (double) ((float) x + rand.nextFloat());
-			double py = (double) y - 1.05D;
-			double pz = (double) ((float) z + rand.nextFloat());
+			double px = x + rand.nextFloat();
+			double py = y - 1.05D;
+			double pz = z + rand.nextFloat();
 
-			EntityFX fx = new EntityDropParticleFX(world, px, py, pz, particleRed, particleGreen, particleBlue);
+			EntityFX fx = new EntityDropParticleFX(world, px, py, pz, this.particleRed, this.particleGreen, this.particleBlue);
 			FMLClientHandler.instance().getClient().effectRenderer.addEffect(fx);
 		}
 	}

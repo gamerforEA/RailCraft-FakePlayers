@@ -1,6 +1,6 @@
-/* 
+/*
  * Copyright (c) CovertJaguar, 2014 http://railcraft.info
- * 
+ *
  * This code is the property of CovertJaguar
  * and may only be used with explicit written
  * permission unless otherwise specified on the
@@ -77,7 +77,7 @@ public class CartUtils
 		if (TrackTools.isRailBlock(block))
 			if (!CartTools.isMinecartAt(world, i, j, k, 0))
 			{
-				EntityMinecart cart = cartType.makeCart(cartStack, world, (float) i + 0.5F, (float) j + 0.5F, (float) k + 0.5F);
+				EntityMinecart cart = cartType.makeCart(cartStack, world, i + 0.5F, j + 0.5F, k + 0.5F);
 				if (cartStack.hasDisplayName())
 					cart.setMinecartName(cartStack.getDisplayName());
 				CartTools.setCartOwner(cart, owner);
@@ -119,7 +119,7 @@ public class CartUtils
 
 		// TODO gamerforEA code replace, old code: cart.worldObj.newExplosion(cart, cart.posX, cart.posY, cart.posZ, 3F, true, true);
 		if (cart instanceof CartBase)
-			ExplosionByPlayer.newExplosion(((CartBase) cart).getOwnerFake(), cart.worldObj, cart, cart.posX, cart.posY, cart.posZ, 3F, true, true);
+			ExplosionByPlayer.newExplosion(((CartBase) cart).fake.getPlayer(), cart.worldObj, cart, cart.posX, cart.posY, cart.posZ, 3F, true, true);
 		else
 			ExplosionByPlayer.newExplosion(null, cart.worldObj, cart, cart.posX, cart.posY, cart.posZ, 3F, true, true);
 		// TODO gamerforEA code end

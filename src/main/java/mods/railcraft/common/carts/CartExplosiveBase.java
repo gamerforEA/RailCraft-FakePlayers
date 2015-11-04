@@ -1,6 +1,6 @@
-/* 
+/*
  * Copyright (c) CovertJaguar, 2014 http://railcraft.info
- * 
+ *
  * This code is the property of CovertJaguar
  * and may only be used with explicit written
  * permission unless otherwise specified on the
@@ -59,9 +59,9 @@ public abstract class CartExplosiveBase extends CartBase implements IExplosiveCa
 	{
 		super.entityInit();
 
-		dataWatcher.addObject(FUSE_DATA_ID, Short.valueOf((short) 80));
-		dataWatcher.addObject(BLAST_DATA_ID, Byte.valueOf((byte) 8));
-		dataWatcher.addObject(PRIMED_DATA_ID, Byte.valueOf((byte) 0));
+		this.dataWatcher.addObject(FUSE_DATA_ID, Short.valueOf((short) 80));
+		this.dataWatcher.addObject(BLAST_DATA_ID, Byte.valueOf((byte) 8));
+		this.dataWatcher.addObject(PRIMED_DATA_ID, Byte.valueOf((byte) 0));
 	}
 
 	@Override
@@ -80,85 +80,71 @@ public abstract class CartExplosiveBase extends CartBase implements IExplosiveCa
 			double d0 = this.motionX * this.motionX + this.motionZ * this.motionZ;
 
 			if (d0 >= 0.01)
-			{
-				explode(getBlastRadiusWithSpeedModifier());
-			}
+				this.explode(this.getBlastRadiusWithSpeedModifier());
 		}
 
-		if (isPrimed())
+		if (this.isPrimed())
 		{
-			setFuse((short) (getFuse() - 1));
-			if (getFuse() <= 0)
-			{
-				explode();
-			}
+			this.setFuse((short) (this.getFuse() - 1));
+			if (this.getFuse() <= 0)
+				this.explode();
 			else
-			{
-				worldObj.spawnParticle("smoke", posX, posY + 0.8D, posZ, 0.0D, 0.0D, 0.0D);
-			}
+				this.worldObj.spawnParticle("smoke", this.posX, this.posY + 0.8D, this.posZ, 0.0D, 0.0D, 0.0D);
 		}
 	}
 
 	@Override
 	public void explode()
 	{
-		explode(getBlastRadius());
+		this.explode(this.getBlastRadius());
 	}
 
 	protected void explode(float blastRadius)
 	{
-		isExploding = true;
-		if (Game.isHost(getWorld()))
+		this.isExploding = true;
+		if (Game.isHost(this.getWorld()))
 		{
 			// TODO gamerforEA use ExplosionByPlayer
-			ExplosionByPlayer.createExplosion(this.getOwnerFake(), this.getWorld(), this, posX, posY, posZ, blastRadius, true);
-			setDead();
+			ExplosionByPlayer.createExplosion(this.fake.getPlayer(), this.worldObj, this, this.posX, this.posY, this.posZ, blastRadius, true);
+			this.setDead();
 		}
 	}
 
 	@Override
 	public void killMinecart(DamageSource damageSource)
 	{
-		if (isDead || isExploding)
-		{
+		if (this.isDead || this.isExploding)
 			return;
-		}
 		double speedSq = this.motionX * this.motionX + this.motionZ * this.motionZ;
 		if (damageSource.isFireDamage() || damageSource.isExplosion() || speedSq >= 0.01D)
-		{
-			explode(getBlastRadiusWithSpeedModifier());
-		}
+			this.explode(this.getBlastRadiusWithSpeedModifier());
 		else
-		{
 			super.killMinecart(damageSource);
-		}
 	}
 
 	protected float getBlastRadiusWithSpeedModifier()
 	{
-		double blast = Math.min(CartTools.getCartSpeedUncapped(this), getMaxBlastRadiusBonus());
-		return (float) (getBlastRadius() + rand.nextDouble() * 1.5 * blast);
+		double blast = Math.min(CartTools.getCartSpeedUncapped(this), this.getMaxBlastRadiusBonus());
+		return (float) (this.getBlastRadius() + this.rand.nextDouble() * 1.5 * blast);
 	}
 
 	protected float getBlastRadiusWithFallModifier(float distance)
 	{
-		double blast = Math.min(distance / 10.0, getMaxBlastRadiusBonus());
-		return (float) (getBlastRadius() + rand.nextDouble() * 1.5 * blast);
+		double blast = Math.min(distance / 10.0, this.getMaxBlastRadiusBonus());
+		return (float) (this.getBlastRadius() + this.rand.nextDouble() * 1.5 * blast);
 	}
 
 	@Override
 	public void onActivatorRailPass(int x, int y, int z, boolean powered)
 	{
-		setPrimed(powered);
+		this.setPrimed(powered);
 	}
 
 	@Override
 	protected void fall(float distance)
 	{
 		if (distance >= 3.0F)
-		{
-			explode(getBlastRadiusWithFallModifier(distance));
-		}
+			this.explode(this.getBlastRadiusWithFallModifier(distance));
 
 		super.fall(distance);
 	}
@@ -168,23 +154,21 @@ public abstract class CartExplosiveBase extends CartBase implements IExplosiveCa
 	{
 		ItemStack stack = player.inventory.getCurrentItem();
 		if (stack != null)
-		{
 			if (stack.getItem() == Items.flint_and_steel || stack.getItem() instanceof ItemFirestoneRefined)
 			{
-				setPrimed(true);
+				this.setPrimed(true);
 				stack.damageItem(1, player);
 			}
 			else if (stack.getItem() == Items.string)
 			{
 				player.inventory.decrStackSize(player.inventory.currentItem, 1);
-				GuiHandler.openGui(EnumGui.CART_TNT_FUSE, player, worldObj, this);
+				GuiHandler.openGui(EnumGui.CART_TNT_FUSE, player, this.worldObj, this);
 			}
 			else if (stack.getItem() == Items.gunpowder)
 			{
 				player.inventory.decrStackSize(player.inventory.currentItem, 1);
-				GuiHandler.openGui(EnumGui.CART_TNT_BLAST, player, worldObj, this);
+				GuiHandler.openGui(EnumGui.CART_TNT_BLAST, player, this.worldObj, this);
 			}
-		}
 		return true;
 	}
 
@@ -197,26 +181,24 @@ public abstract class CartExplosiveBase extends CartBase implements IExplosiveCa
 	@Override
 	public boolean isPrimed()
 	{
-		return dataWatcher.getWatchableObjectByte(PRIMED_DATA_ID) != 0;
+		return this.dataWatcher.getWatchableObjectByte(PRIMED_DATA_ID) != 0;
 	}
 
 	@Override
 	public void setPrimed(boolean primed)
 	{
-		if (Game.isHost(worldObj) && isPrimed() != primed)
+		if (Game.isHost(this.worldObj) && this.isPrimed() != primed)
 		{
 			if (primed)
-			{
-				worldObj.playSoundAtEntity(this, "random.fuse", 1.0F, 1.0F);
-			}
-			dataWatcher.updateObject(PRIMED_DATA_ID, primed ? Byte.valueOf((byte) 1) : Byte.valueOf((byte) 0));
+				this.worldObj.playSoundAtEntity(this, "random.fuse", 1.0F, 1.0F);
+			this.dataWatcher.updateObject(PRIMED_DATA_ID, primed ? Byte.valueOf((byte) 1) : Byte.valueOf((byte) 0));
 		}
 	}
 
 	@Override
 	public int getFuse()
 	{
-		return dataWatcher.getWatchableObjectShort(FUSE_DATA_ID);
+		return this.dataWatcher.getWatchableObjectShort(FUSE_DATA_ID);
 	}
 
 	@Override
@@ -224,7 +206,7 @@ public abstract class CartExplosiveBase extends CartBase implements IExplosiveCa
 	{
 		f = (short) Math.max(f, MIN_FUSE);
 		f = (short) Math.min(f, MAX_FUSE);
-		dataWatcher.updateObject(FUSE_DATA_ID, (short) f);
+		this.dataWatcher.updateObject(FUSE_DATA_ID, (short) f);
 	}
 
 	protected float getMinBlastRadius()
@@ -245,54 +227,54 @@ public abstract class CartExplosiveBase extends CartBase implements IExplosiveCa
 	@Override
 	public float getBlastRadius()
 	{
-		return dataWatcher.getWatchableObjectByte(BLAST_DATA_ID) * BLAST_RADIUS_BYTE_MULTIPLIER;
+		return this.dataWatcher.getWatchableObjectByte(BLAST_DATA_ID) * BLAST_RADIUS_BYTE_MULTIPLIER;
 	}
 
 	@Override
 	public void setBlastRadius(float b)
 	{
-		b = Math.max(b, getMinBlastRadius());
-		b = Math.min(b, getMaxBlastRadius());
+		b = Math.max(b, this.getMinBlastRadius());
+		b = Math.min(b, this.getMaxBlastRadius());
 		b /= BLAST_RADIUS_BYTE_MULTIPLIER;
-		dataWatcher.updateObject(BLAST_DATA_ID, Byte.valueOf((byte) b));
+		this.dataWatcher.updateObject(BLAST_DATA_ID, Byte.valueOf((byte) b));
 	}
 
 	@Override
 	protected void writeEntityToNBT(NBTTagCompound data)
 	{
 		super.writeEntityToNBT(data);
-		data.setShort("Fuse", (short) getFuse());
-		data.setByte("blastRadius", dataWatcher.getWatchableObjectByte(BLAST_DATA_ID));
-		data.setBoolean("Primed", isPrimed());
+		data.setShort("Fuse", (short) this.getFuse());
+		data.setByte("blastRadius", this.dataWatcher.getWatchableObjectByte(BLAST_DATA_ID));
+		data.setBoolean("Primed", this.isPrimed());
 	}
 
 	@Override
 	protected void readEntityFromNBT(NBTTagCompound data)
 	{
 		super.readEntityFromNBT(data);
-		setFuse(data.getShort("Fuse"));
-		setBlastRadius(data.getByte("blastRadius"));
-		setPrimed(data.getBoolean("Primed"));
+		this.setFuse(data.getShort("Fuse"));
+		this.setBlastRadius(data.getByte("blastRadius"));
+		this.setPrimed(data.getBoolean("Primed"));
 	}
 
 	@Override
 	public void writeGuiData(DataOutputStream data) throws IOException
 	{
-		data.writeShort(getFuse());
-		data.writeByte(dataWatcher.getWatchableObjectByte(BLAST_DATA_ID));
+		data.writeShort(this.getFuse());
+		data.writeByte(this.dataWatcher.getWatchableObjectByte(BLAST_DATA_ID));
 	}
 
 	@Override
 	public void readGuiData(DataInputStream data, EntityPlayer sender) throws IOException
 	{
-		setFuse(data.readShort());
-		setBlastRadius(data.readByte());
+		this.setFuse(data.readShort());
+		this.setBlastRadius(data.readByte());
 	}
 
 	@Override
 	public World getWorld()
 	{
-		return worldObj;
+		return this.worldObj;
 	}
 
 	@Override

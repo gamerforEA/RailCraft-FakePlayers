@@ -1,6 +1,6 @@
-/* 
+/*
  * Copyright (c) CovertJaguar, 2014 http://railcraft.info
- * 
+ *
  * This code is the property of CovertJaguar
  * and may only be used with explicit written
  * permission unless otherwise specified on the
@@ -59,18 +59,18 @@ public class TileEngineSteamHobby extends TileEngineSteam implements IInventory,
 	public TileEngineSteamHobby()
 	{
 		FilteredTank tankWater = new FilteredTank(4 * FluidHelper.BUCKET_VOLUME, Fluids.WATER.get(), this);
-		getTankManager().add(tankWater);
-		getTankManager().get(TANK_STEAM).setCapacity(4 * FluidHelper.BUCKET_VOLUME);
+		this.getTankManager().add(tankWater);
+		this.getTankManager().get(TANK_STEAM).setCapacity(4 * FluidHelper.BUCKET_VOLUME);
 
-		boiler = new SteamBoiler(tankWater, getTankManager().get(TANK_STEAM));
-		boiler.setTicksPerCycle(TICKS_PER_BOILER_CYCLE);
-		boiler.setEfficiencyModifier(FUEL_PER_CONVERSION_MULTIPLIER);
-		boiler.setFuelProvider(new SolidFuelProvider(inv, SLOT_FUEL)
+		this.boiler = new SteamBoiler(tankWater, this.getTankManager().get(TANK_STEAM));
+		this.boiler.setTicksPerCycle(TICKS_PER_BOILER_CYCLE);
+		this.boiler.setEfficiencyModifier(FUEL_PER_CONVERSION_MULTIPLIER);
+		this.boiler.setFuelProvider(new SolidFuelProvider(this.inv, SLOT_FUEL)
 		{
 			@Override
 			public double getMoreFuel()
 			{
-				if (getEnergyStage() == EnergyStage.OVERHEAT || !isPowered())
+				if (TileEngineSteamHobby.this.getEnergyStage() == EnergyStage.OVERHEAT || !TileEngineSteamHobby.this.isPowered())
 					return 0;
 				return super.getMoreFuel();
 			}
@@ -86,7 +86,7 @@ public class TileEngineSteamHobby extends TileEngineSteam implements IInventory,
 	@Override
 	public boolean openGui(EntityPlayer player)
 	{
-		GuiHandler.openGui(EnumGui.ENGINE_HOBBY, player, worldObj, xCoord, yCoord, zCoord);
+		GuiHandler.openGui(EnumGui.ENGINE_HOBBY, player, this.worldObj, this.xCoord, this.yCoord, this.zCoord);
 		return true;
 	}
 
@@ -95,7 +95,7 @@ public class TileEngineSteamHobby extends TileEngineSteam implements IInventory,
 	{
 		ItemStack current = player.getCurrentEquippedItem();
 		if (current != null && current.getItem() != Items.bucket)
-			if (Game.isHost(worldObj))
+			if (Game.isHost(this.worldObj))
 			{
 				if (FluidHelper.handleRightClick(this, ForgeDirection.getOrientation(side), player, true, false))
 					return true;
@@ -121,15 +121,13 @@ public class TileEngineSteamHobby extends TileEngineSteam implements IInventory,
 	public void updateEntity()
 	{
 		super.updateEntity();
-		if (Game.isHost(worldObj))
-		{
-			if (explode)
+		if (Game.isHost(this.worldObj))
+			if (this.explode)
 			{
 				// TODO gamerforEA use ExplosionByPlayer
-				ExplosionByPlayer.createExplosion(this.getOwnerFake(), this.getWorld(), null, xCoord, yCoord, zCoord, 2, true);
-				explode = false;
+				ExplosionByPlayer.createExplosion(this.fake.getPlayer(), this.getWorld(), null, this.xCoord, this.yCoord, this.zCoord, 2, true);
+				this.explode = false;
 			}
-		}
 	}
 
 	@Override
@@ -137,28 +135,28 @@ public class TileEngineSteamHobby extends TileEngineSteam implements IInventory,
 	{
 		super.burn();
 
-		if (clock % FluidHelper.BUCKET_FILL_TIME == 0)
-			FluidHelper.drainContainers(this, inv, SLOT_LIQUID_INPUT, SLOT_LIQUID_OUTPUT);
+		if (this.clock % FluidHelper.BUCKET_FILL_TIME == 0)
+			FluidHelper.drainContainers(this, this.inv, SLOT_LIQUID_INPUT, SLOT_LIQUID_OUTPUT);
 
-		boiler.tick(1);
+		this.boiler.tick(1);
 	}
 
 	@Override
 	public int getSizeInventory()
 	{
-		return inv.getSizeInventory();
+		return this.inv.getSizeInventory();
 	}
 
 	@Override
 	public ItemStack getStackInSlot(int slot)
 	{
-		return inv.getStackInSlot(slot);
+		return this.inv.getStackInSlot(slot);
 	}
 
 	@Override
 	public ItemStack decrStackSize(int slot, int amount)
 	{
-		return inv.decrStackSize(slot, amount);
+		return this.inv.decrStackSize(slot, amount);
 	}
 
 	@Override
@@ -170,7 +168,7 @@ public class TileEngineSteamHobby extends TileEngineSteam implements IInventory,
 	@Override
 	public void setInventorySlotContents(int slot, ItemStack stack)
 	{
-		inv.setInventorySlotContents(slot, stack);
+		this.inv.setInventorySlotContents(slot, stack);
 	}
 
 	@Override
@@ -198,7 +196,7 @@ public class TileEngineSteamHobby extends TileEngineSteam implements IInventory,
 	@Override
 	public String getInventoryName()
 	{
-		return getName();
+		return this.getName();
 	}
 
 	@Override
@@ -216,38 +214,38 @@ public class TileEngineSteamHobby extends TileEngineSteam implements IInventory,
 	@Override
 	public boolean needsFuel()
 	{
-		ItemStack fuel = inv.getStackInSlot(SLOT_FUEL);
+		ItemStack fuel = this.inv.getStackInSlot(SLOT_FUEL);
 		return fuel == null || fuel.stackSize < 8;
 	}
 
 	@Override
 	public float getTemperature()
 	{
-		return (float) boiler.getHeat();
+		return (float) this.boiler.getHeat();
 	}
 
 	@Override
 	public void writeToNBT(NBTTagCompound data)
 	{
 		super.writeToNBT(data);
-		inv.writeToNBT("Items", data);
+		this.inv.writeToNBT("Items", data);
 
-		boiler.writeToNBT(data);
+		this.boiler.writeToNBT(data);
 	}
 
 	@Override
 	public void readFromNBT(NBTTagCompound data)
 	{
 		super.readFromNBT(data);
-		inv.readFromNBT("Items", data);
+		this.inv.readFromNBT("Items", data);
 
-		boiler.readFromNBT(data);
+		this.boiler.readFromNBT(data);
 	}
 
 	@Override
 	public int[] getAccessibleSlotsFromSide(int side)
 	{
-		if (getOrientation().ordinal() == side)
+		if (this.getOrientation().ordinal() == side)
 			return NO_SLOTS;
 		return SLOTS;
 	}
@@ -255,7 +253,7 @@ public class TileEngineSteamHobby extends TileEngineSteam implements IInventory,
 	@Override
 	public boolean canInsertItem(int slot, ItemStack stack, int side)
 	{
-		return isItemValidForSlot(slot, stack);
+		return this.isItemValidForSlot(slot, stack);
 	}
 
 	@Override
@@ -286,27 +284,27 @@ public class TileEngineSteamHobby extends TileEngineSteam implements IInventory,
 	@Override
 	public int fill(ForgeDirection from, FluidStack resource, boolean doFill)
 	{
-		if (isPowered() && Fluids.STEAM.is(resource))
-			return fill(0, resource, doFill);
+		if (this.isPowered() && Fluids.STEAM.is(resource))
+			return this.fill(0, resource, doFill);
 		if (Fluids.WATER.is(resource))
-			return fill(1, resource, doFill);
+			return this.fill(1, resource, doFill);
 		return 0;
 	}
 
 	private int fill(int tankIndex, FluidStack resource, boolean doFill)
 	{
 		if (tankIndex == 1)
-			if (boiler.isSuperHeated() && Steam.BOILERS_EXPLODE)
+			if (this.boiler.isSuperHeated() && Steam.BOILERS_EXPLODE)
 			{
-				FluidStack water = getTankManager().get(TANK_WATER).getFluid();
+				FluidStack water = this.getTankManager().get(TANK_WATER).getFluid();
 				if (water == null || water.amount <= 0)
-					explode();
+					this.explode();
 			}
-		return getTankManager().fill(tankIndex, resource, doFill);
+		return this.getTankManager().fill(tankIndex, resource, doFill);
 	}
 
 	public void explode()
 	{
-		explode = true;
+		this.explode = true;
 	}
 }

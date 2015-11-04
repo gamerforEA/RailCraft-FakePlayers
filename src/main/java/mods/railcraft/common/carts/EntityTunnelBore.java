@@ -1,6 +1,6 @@
-/* 
+/*
  * Copyright (c) CovertJaguar, 2014 http://railcraft.info
- * 
+ *
  * This code is the property of CovertJaguar
  * and may only be used with explicit written
  * permission unless otherwise specified on the
@@ -14,10 +14,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.gamerforea.railcraft.FakePlayerUtils;
+import com.gamerforea.eventhelper.util.EventUtils;
 
 import mods.railcraft.api.carts.CartTools;
 import mods.railcraft.api.carts.ILinkableCart;
+import mods.railcraft.api.carts.ILinkageManager;
 import mods.railcraft.api.carts.bore.IBoreHead;
 import mods.railcraft.api.carts.bore.IMineable;
 import mods.railcraft.api.tracks.RailTools;
@@ -77,9 +78,7 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 	static
 	{
 		for (Block block : mineable)
-		{
 			addMineableBlock(block);
-		}
 		replaceableBlocks.addAll(Arrays.asList(replaceable));
 	}
 
@@ -107,17 +106,17 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 	public EntityTunnelBore(World world, double i, double j, double k, ForgeDirection f)
 	{
 		super(world);
-		hasInit = true;
-		setPosition(i, j + (double) yOffset, k);
-		motionX = 0.0D;
-		motionY = 0.0D;
-		motionZ = 0.0D;
-		prevPosX = i;
-		prevPosY = j;
-		prevPosZ = k;
+		this.hasInit = true;
+		this.setPosition(i, j + this.yOffset, k);
+		this.motionX = 0.0D;
+		this.motionY = 0.0D;
+		this.motionZ = 0.0D;
+		this.prevPosX = i;
+		this.prevPosY = j;
+		this.prevPosZ = k;
 		//        cargoItems = new ItemStack[25];
-		setFacing(f);
-		setSize(LENGTH, 2.7F);
+		this.setFacing(f);
+		this.setSize(LENGTH, 2.7F);
 	}
 
 	public EntityTunnelBore(World world)
@@ -188,21 +187,21 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 	protected void entityInit()
 	{
 		super.entityInit();
-		dataWatcher.addObject(WATCHER_ID_FUEL, (byte) 0);
-		dataWatcher.addObject(WATCHER_ID_MOVING, (byte) 0);
-		dataWatcher.addObjectByDataType(WATCHER_ID_BORE_HEAD, 5);
-		dataWatcher.addObject(WATCHER_ID_FACING, (byte) 0);
+		this.dataWatcher.addObject(WATCHER_ID_FUEL, (byte) 0);
+		this.dataWatcher.addObject(WATCHER_ID_MOVING, (byte) 0);
+		this.dataWatcher.addObjectByDataType(WATCHER_ID_BORE_HEAD, 5);
+		this.dataWatcher.addObject(WATCHER_ID_FACING, (byte) 0);
 		//        dataWatcher.addObject(WATCHER_ID_BURN_TIME, Integer.valueOf(0));
 	}
 
 	public boolean isMinecartPowered()
 	{
-		return dataWatcher.getWatchableObjectByte(WATCHER_ID_FUEL) != 0;
+		return this.dataWatcher.getWatchableObjectByte(WATCHER_ID_FUEL) != 0;
 	}
 
 	public void setMinecartPowered(boolean powered)
 	{
-		dataWatcher.updateObject(WATCHER_ID_FUEL, (byte) (powered ? 1 : 0));
+		this.dataWatcher.updateObject(WATCHER_ID_FUEL, (byte) (powered ? 1 : 0));
 	}
 
 	@Override
@@ -239,7 +238,7 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 	private void setYaw()
 	{
 		float yaw = 0;
-		switch (getFacing())
+		switch (this.getFacing())
 		{
 			case NORTH:
 				yaw = 90;
@@ -254,7 +253,7 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 				yaw = 180;
 				break;
 		}
-		setRotation(yaw, rotationPitch);
+		this.setRotation(yaw, this.rotationPitch);
 	}
 
 	@Override
@@ -272,15 +271,15 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 	@Override
 	public void setPosition(double i, double j, double k)
 	{
-		if (!hasInit)
+		if (!this.hasInit)
 		{
 			super.setPosition(i, j, k);
 			return;
 		}
 
-		posX = i;
-		posY = j;
-		posZ = k;
+		this.posX = i;
+		this.posY = j;
+		this.posZ = k;
 		double w = 2.7 / 2.0;
 		double h = 2.7;
 		double l = LENGTH / 2.0;
@@ -288,7 +287,7 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 		double x2 = i;
 		double z1 = k;
 		double z2 = k;
-		if (getFacing() == ForgeDirection.WEST || getFacing() == ForgeDirection.EAST)
+		if (this.getFacing() == ForgeDirection.WEST || this.getFacing() == ForgeDirection.EAST)
 		{
 			x1 -= l;
 			x2 += l;
@@ -303,182 +302,180 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 			z2 += l;
 		}
 
-		boundingBox.setBounds(x1, (j - (double) yOffset) + (double) ySize, z1, x2, (j - (double) yOffset) + (double) ySize + h, z2);
+		this.boundingBox.setBounds(x1, j - this.yOffset + this.ySize, z1, x2, j - this.yOffset + this.ySize + h, z2);
 	}
 
 	@Override
 	public void onUpdate()
 	{
-		clock++;
+		this.clock++;
 
-		if (Game.isHost(worldObj))
+		if (Game.isHost(this.worldObj))
 		{
-			if (clock % 64 == 0)
+			if (this.clock % 64 == 0)
 			{
-				forceUpdateBoreHead();
-				setMinecartPowered(false);
-				setMoving(false);
+				this.forceUpdateBoreHead();
+				this.setMinecartPowered(false);
+				this.setMoving(false);
 			}
 
-			stockBallast();
-			stockTracks();
+			this.stockBallast();
+			this.stockTracks();
 		}
 
 		super.onUpdate();
 
-		if (Game.isHost(worldObj))
+		if (Game.isHost(this.worldObj))
 		{
-			updateFuel();
+			this.updateFuel();
 			//            if(update % 64 == 0){
 			//                System.out.println("bore tick");
 			//            }
 
-			if (hasFuel() && getDelay() == 0)
+			if (this.hasFuel() && this.getDelay() == 0)
 			{
-				setActive(true);
+				this.setActive(true);
 				//            System.out.println("Yaw = " + MathHelper.floor_double(rotationYaw));
 
 				int x;
-				int y = MathHelper.floor_double(posY);
+				int y = MathHelper.floor_double(this.posY);
 				int z;
 				EnumTrackMeta dir = EnumTrackMeta.NORTH_SOUTH;
-				if (getFacing() == ForgeDirection.WEST || getFacing() == ForgeDirection.EAST)
+				if (this.getFacing() == ForgeDirection.WEST || this.getFacing() == ForgeDirection.EAST)
 					dir = EnumTrackMeta.EAST_WEST;
 
-				if (getDelay() == 0)
+				if (this.getDelay() == 0)
 				{
 					float offset = 1.5f;
-					x = MathHelper.floor_double(getXAhead(posX, offset));
-					z = MathHelper.floor_double(getZAhead(posZ, offset));
+					x = MathHelper.floor_double(this.getXAhead(this.posX, offset));
+					z = MathHelper.floor_double(this.getZAhead(this.posZ, offset));
 
-					if (placeBallast)
+					if (this.placeBallast)
 					{
-						boolean placed = placeBallast(x, y - 1, z);
+						boolean placed = this.placeBallast(x, y - 1, z);
 						if (placed)
-							setDelay(STANDARD_DELAY);
+							this.setDelay(STANDARD_DELAY);
 						else
 						{
-							setDelay(FAIL_DELAY);
-							setActive(false);
+							this.setDelay(FAIL_DELAY);
+							this.setActive(false);
 						}
-						placeBallast = false;
+						this.placeBallast = false;
 					}
-					else if (!worldObj.isSideSolid(x, y - 1, z, ForgeDirection.UP))
+					else if (!this.worldObj.isSideSolid(x, y - 1, z, ForgeDirection.UP))
 					{
-						placeBallast = true;
-						setDelay(BALLAST_DELAY);
+						this.placeBallast = true;
+						this.setDelay(BALLAST_DELAY);
 					}
 				}
 
-				if (getDelay() == 0)
+				if (this.getDelay() == 0)
 				{
 					float offset = 0.8f;
-					x = MathHelper.floor_double(getXAhead(posX, offset));
-					z = MathHelper.floor_double(getZAhead(posZ, offset));
+					x = MathHelper.floor_double(this.getXAhead(this.posX, offset));
+					z = MathHelper.floor_double(this.getZAhead(this.posZ, offset));
 
-					if (placeRail)
+					if (this.placeRail)
 					{
-						boolean placed = placeTrack(x, y, z, dir);
+						boolean placed = this.placeTrack(x, y, z, dir);
 						if (placed)
-							setDelay(STANDARD_DELAY);
+							this.setDelay(STANDARD_DELAY);
 						else
 						{
-							setDelay(FAIL_DELAY);
-							setActive(false);
+							this.setDelay(FAIL_DELAY);
+							this.setActive(false);
 						}
-						placeRail = false;
+						this.placeRail = false;
 					}
-					else if (TrackTools.isRailBlockAt(worldObj, x, y, z))
+					else if (TrackTools.isRailBlockAt(this.worldObj, x, y, z))
 					{
-						if (!dir.isEqual(TrackTools.getTrackMeta(worldObj, this, x, y, z)))
+						if (!dir.isEqual(TrackTools.getTrackMeta(this.worldObj, this, x, y, z)))
 						{
-							worldObj.setBlockMetadataWithNotify(x, y, z, dir.ordinal(), 3);
-							setDelay(STANDARD_DELAY);
+							this.worldObj.setBlockMetadataWithNotify(x, y, z, dir.ordinal(), 3);
+							this.setDelay(STANDARD_DELAY);
 						}
 					}
-					else if (worldObj.isAirBlock(x, y, z) || replaceableBlocks.contains(worldObj.getBlock(x, y, z)))
+					else if (this.worldObj.isAirBlock(x, y, z) || replaceableBlocks.contains(this.worldObj.getBlock(x, y, z)))
 					{
-						placeRail = true;
-						setDelay(STANDARD_DELAY);
+						this.placeRail = true;
+						this.setDelay(STANDARD_DELAY);
 					}
 					else
 					{
-						setDelay(FAIL_DELAY);
-						setActive(false);
+						this.setDelay(FAIL_DELAY);
+						this.setActive(false);
 					}
 				}
 
-				if (getDelay() == 0)
+				if (this.getDelay() == 0)
 				{
 					float offset = 3.3f;
-					x = MathHelper.floor_double(getXAhead(posX, offset));
-					z = MathHelper.floor_double(getZAhead(posZ, offset));
+					x = MathHelper.floor_double(this.getXAhead(this.posX, offset));
+					z = MathHelper.floor_double(this.getZAhead(this.posZ, offset));
 
-					if (boreLayer)
+					if (this.boreLayer)
 					{
-						boolean bored = boreLayer(x, y, z, dir);
+						boolean bored = this.boreLayer(x, y, z, dir);
 						if (bored)
-							setDelay(LAYER_DELAY);
+							this.setDelay(LAYER_DELAY);
 						else
 						{
-							setDelay(FAIL_DELAY);
-							setActive(false);
+							this.setDelay(FAIL_DELAY);
+							this.setActive(false);
 						}
-						boreLayer = false;
+						this.boreLayer = false;
 					}
-					else if (checkForLava(x, y, z, dir))
+					else if (this.checkForLava(x, y, z, dir))
 					{
-						setDelay(FAIL_DELAY);
-						setActive(false);
+						this.setDelay(FAIL_DELAY);
+						this.setActive(false);
 					}
 					else
 					{
-						setDelay((int) Math.ceil(getLayerHardness(x, y, z, dir)));
-						if (getDelay() != 0)
-							boreLayer = true;
+						this.setDelay((int) Math.ceil(this.getLayerHardness(x, y, z, dir)));
+						if (this.getDelay() != 0)
+							this.boreLayer = true;
 					}
 				}
 			}
 
-			if (isMinecartPowered())
+			if (this.isMinecartPowered())
 			{
-				double i = getXAhead(posX, 3.3);
-				double k = getZAhead(posZ, 3.3);
+				double i = this.getXAhead(this.posX, 3.3);
+				double k = this.getZAhead(this.posZ, 3.3);
 				double size = 0.8;
-				List entities = worldObj.getEntitiesWithinAABBExcludingEntity(this, AxisAlignedBB.getBoundingBox(i - size, posY, k - size, i + size, posY + 2, k + size));
+				List entities = this.worldObj.getEntitiesWithinAABBExcludingEntity(this, AxisAlignedBB.getBoundingBox(i - size, this.posY, k - size, i + size, this.posY + 2, k + size));
 				for (Object e : entities)
-				{
 					if (e instanceof EntityLivingBase)
 					{
 						EntityLivingBase ent = (EntityLivingBase) e;
 						ent.attackEntityFrom(RailcraftDamageSource.BORE, 2);
 					}
-				}
 			}
 
-			setMoving(hasFuel() && getDelay() == 0);
+			this.setMoving(this.hasFuel() && this.getDelay() == 0);
 
-			if (getDelay() > 0)
-				setDelay(getDelay() - 1);
+			if (this.getDelay() > 0)
+				this.setDelay(this.getDelay() - 1);
 		}
 
-		if (isMoving())
+		if (this.isMoving())
 		{
-			float factorX = MathHelper.cos((float) Math.toRadians(rotationYaw));
-			float factorZ = -MathHelper.sin((float) Math.toRadians(rotationYaw));
-			motionX = SPEED * factorX;
-			motionZ = SPEED * factorZ;
+			float factorX = MathHelper.cos((float) Math.toRadians(this.rotationYaw));
+			float factorZ = -MathHelper.sin((float) Math.toRadians(this.rotationYaw));
+			this.motionX = SPEED * factorX;
+			this.motionZ = SPEED * factorZ;
 		}
 		else
 		{
-			motionX = 0.0D;
-			motionZ = 0.0D;
+			this.motionX = 0.0D;
+			this.motionZ = 0.0D;
 		}
 
-		emitParticles();
+		this.emitParticles();
 
-		if (isMinecartPowered())
-			boreRotationAngle += 5;
+		if (this.isMinecartPowered())
+			this.boreRotationAngle += 5;
 	}
 
 	@Override
@@ -489,38 +486,38 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 
 	private void updateFuel()
 	{
-		if (Game.isHost(worldObj))
+		if (Game.isHost(this.worldObj))
 		{
-			if (isMinecartPowered())
-				spendFuel();
-			stockFuel();
-			if (outOfFuel())
-				addFuel();
-			setMinecartPowered(hasFuel() && isActive());
+			if (this.isMinecartPowered())
+				this.spendFuel();
+			this.stockFuel();
+			if (this.outOfFuel())
+				this.addFuel();
+			this.setMinecartPowered(this.hasFuel() && this.isActive());
 		}
 	}
 
 	protected double getXAhead(double x, double offset)
 	{
-		if (getFacing() == ForgeDirection.EAST)
+		if (this.getFacing() == ForgeDirection.EAST)
 			x += offset;
-		else if (getFacing() == ForgeDirection.WEST)
+		else if (this.getFacing() == ForgeDirection.WEST)
 			x -= offset;
 		return x;
 	}
 
 	protected double getZAhead(double z, double offset)
 	{
-		if (getFacing() == ForgeDirection.NORTH)
+		if (this.getFacing() == ForgeDirection.NORTH)
 			z -= offset;
-		else if (getFacing() == ForgeDirection.SOUTH)
+		else if (this.getFacing() == ForgeDirection.SOUTH)
 			z += offset;
 		return z;
 	}
 
 	protected void emitParticles()
 	{
-		if (isMinecartPowered())
+		if (this.isMinecartPowered())
 		{
 			double randomFactor = 0.125;
 
@@ -529,16 +526,16 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 			double flameYOffset = 0.7;
 			double smokeSideOffset = 0.92;
 			double flameSideOffset = 1.14;
-			double smokeX1 = posX;
-			double smokeX2 = posX;
-			double smokeZ1 = posZ;
-			double smokeZ2 = posZ;
+			double smokeX1 = this.posX;
+			double smokeX2 = this.posX;
+			double smokeZ1 = this.posZ;
+			double smokeZ2 = this.posZ;
 
-			double flameX1 = posX;
-			double flameX2 = posX;
-			double flameZ1 = posZ;
-			double flameZ2 = posZ;
-			if (getFacing() == ForgeDirection.NORTH)
+			double flameX1 = this.posX;
+			double flameX2 = this.posX;
+			double flameZ1 = this.posZ;
+			double flameZ2 = this.posZ;
+			if (this.getFacing() == ForgeDirection.NORTH)
 			{
 				smokeX1 += smokeSideOffset;
 				smokeX2 -= smokeSideOffset;
@@ -547,22 +544,22 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 
 				flameX1 += flameSideOffset;
 				flameX2 -= flameSideOffset;
-				flameZ1 += forwardOffset + (rand.nextGaussian() * randomFactor);
-				flameZ2 += forwardOffset + (rand.nextGaussian() * randomFactor);
+				flameZ1 += forwardOffset + this.rand.nextGaussian() * randomFactor;
+				flameZ2 += forwardOffset + this.rand.nextGaussian() * randomFactor;
 			}
-			else if (getFacing() == ForgeDirection.EAST)
+			else if (this.getFacing() == ForgeDirection.EAST)
 			{
 				smokeX1 -= forwardOffset;
 				smokeX2 -= forwardOffset;
 				smokeZ1 += smokeSideOffset;
 				smokeZ2 -= smokeSideOffset;
 
-				flameX1 -= forwardOffset + (rand.nextGaussian() * randomFactor);
-				flameX2 -= forwardOffset + (rand.nextGaussian() * randomFactor);
+				flameX1 -= forwardOffset + this.rand.nextGaussian() * randomFactor;
+				flameX2 -= forwardOffset + this.rand.nextGaussian() * randomFactor;
 				flameZ1 += flameSideOffset;
 				flameZ2 -= flameSideOffset;
 			}
-			else if (getFacing() == ForgeDirection.SOUTH)
+			else if (this.getFacing() == ForgeDirection.SOUTH)
 			{
 				smokeX1 += smokeSideOffset;
 				smokeX2 -= smokeSideOffset;
@@ -571,66 +568,65 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 
 				flameX1 += flameSideOffset;
 				flameX2 -= flameSideOffset;
-				flameZ1 -= forwardOffset + (rand.nextGaussian() * randomFactor);
-				flameZ2 -= forwardOffset + (rand.nextGaussian() * randomFactor);
+				flameZ1 -= forwardOffset + this.rand.nextGaussian() * randomFactor;
+				flameZ2 -= forwardOffset + this.rand.nextGaussian() * randomFactor;
 			}
-			else if (getFacing() == ForgeDirection.WEST)
+			else if (this.getFacing() == ForgeDirection.WEST)
 			{
 				smokeX1 += forwardOffset;
 				smokeX2 += forwardOffset;
 				smokeZ1 += smokeSideOffset;
 				smokeZ2 -= smokeSideOffset;
 
-				flameX1 += forwardOffset + (rand.nextGaussian() * randomFactor);
-				flameX2 += forwardOffset + (rand.nextGaussian() * randomFactor);
+				flameX1 += forwardOffset + this.rand.nextGaussian() * randomFactor;
+				flameX2 += forwardOffset + this.rand.nextGaussian() * randomFactor;
 				flameZ1 += flameSideOffset;
 				flameZ2 -= flameSideOffset;
 			}
 
-			if (rand.nextInt(4) == 0)
+			if (this.rand.nextInt(4) == 0)
 			{
-				worldObj.spawnParticle("largesmoke", smokeX1, posY + smokeYOffset, smokeZ1, 0.0D, 0.0D, 0.0D);
-				worldObj.spawnParticle("flame", flameX1, posY + flameYOffset + (rand.nextGaussian() * randomFactor), flameZ1, 0.0D, 0.0D, 0.0D);
+				this.worldObj.spawnParticle("largesmoke", smokeX1, this.posY + smokeYOffset, smokeZ1, 0.0D, 0.0D, 0.0D);
+				this.worldObj.spawnParticle("flame", flameX1, this.posY + flameYOffset + this.rand.nextGaussian() * randomFactor, flameZ1, 0.0D, 0.0D, 0.0D);
 			}
-			if (rand.nextInt(4) == 0)
+			if (this.rand.nextInt(4) == 0)
 			{
-				worldObj.spawnParticle("largesmoke", smokeX2, posY + smokeYOffset, smokeZ2, 0.0D, 0.0D, 0.0D);
-				worldObj.spawnParticle("flame", flameX2, posY + flameYOffset + (rand.nextGaussian() * randomFactor), flameZ2, 0.0D, 0.0D, 0.0D);
+				this.worldObj.spawnParticle("largesmoke", smokeX2, this.posY + smokeYOffset, smokeZ2, 0.0D, 0.0D, 0.0D);
+				this.worldObj.spawnParticle("flame", flameX2, this.posY + flameYOffset + this.rand.nextGaussian() * randomFactor, flameZ2, 0.0D, 0.0D, 0.0D);
 			}
 		}
 	}
 
 	protected void stockBallast()
 	{
-		if (InvTools.isEmptySlot(invBallast))
+		if (InvTools.isEmptySlot(this.invBallast))
 		{
 			ItemStack stack = CartTools.transferHelper.pullStack(this, StackFilter.BALLAST);
 			if (stack != null)
-				InvTools.moveItemStack(stack, invBallast);
+				InvTools.moveItemStack(stack, this.invBallast);
 		}
 	}
 
 	protected boolean placeBallast(int i, int j, int k)
 	{
-		if (!worldObj.isSideSolid(i, j, k, ForgeDirection.UP))
-			for (int inv = 0; inv < invBallast.getSizeInventory(); inv++)
+		if (!this.worldObj.isSideSolid(i, j, k, ForgeDirection.UP))
+			for (int inv = 0; inv < this.invBallast.getSizeInventory(); inv++)
 			{
-				ItemStack stack = invBallast.getStackInSlot(inv);
+				ItemStack stack = this.invBallast.getStackInSlot(inv);
 				if (stack != null && BallastRegistry.isItemBallast(stack))
 				{
 					for (int y = j; y > j - MAX_FILL_DEPTH; y--)
-					{
-						if (worldObj.isSideSolid(i, y, k, ForgeDirection.UP))
+						if (this.worldObj.isSideSolid(i, y, k, ForgeDirection.UP))
 						{
 							// TODO gamerforEA code start
-							if (FakePlayerUtils.cantBreak(i, j, k, this.getOwnerFake()))
+							if (EventUtils.cantBreak(this.fake.getPlayer(), i, j, k))
 								return false;
 							// TODO gamerforEA code end
-							invBallast.decrStackSize(inv, 1);
-							worldObj.setBlock(i, j, k, InvTools.getBlockFromStack(stack), stack.getItemDamage(), 3);
+
+							this.invBallast.decrStackSize(inv, 1);
+							this.worldObj.setBlock(i, j, k, InvTools.getBlockFromStack(stack), stack.getItemDamage(), 3);
 							return true;
 						}
-					}
 					return false;
 				}
 			}
@@ -639,36 +635,36 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 
 	protected void stockTracks()
 	{
-		if (InvTools.isEmptySlot(invRails))
+		if (InvTools.isEmptySlot(this.invRails))
 		{
 			ItemStack stack = CartTools.transferHelper.pullStack(this, StackFilter.TRACK);
 			if (stack != null)
-				InvTools.moveItemStack(stack, invRails);
+				InvTools.moveItemStack(stack, this.invRails);
 		}
 	}
 
 	protected boolean placeTrack(int x, int y, int z, EnumTrackMeta meta)
 	{
 		// TODO gamerforEA code start
-		if (FakePlayerUtils.cantBreak(x, y, z, this.getOwnerFake()))
+		if (EventUtils.cantBreak(this.fake.getPlayer(), x, y, z))
 			return false;
 		// TODO gamerforEA code end
 
-		Block block = worldObj.getBlock(x, y, z);
+		Block block = this.worldObj.getBlock(x, y, z);
 		if (replaceableBlocks.contains(block))
-			worldObj.func_147480_a(x, y, z, true);
+			this.worldObj.func_147480_a(x, y, z, true);
 
-		if (worldObj.isAirBlock(x, y, z) && worldObj.isSideSolid(x, y - 1, z, ForgeDirection.UP))
-			for (int inv = 0; inv < invRails.getSizeInventory(); inv++)
+		if (this.worldObj.isAirBlock(x, y, z) && this.worldObj.isSideSolid(x, y - 1, z, ForgeDirection.UP))
+			for (int inv = 0; inv < this.invRails.getSizeInventory(); inv++)
 			{
-				ItemStack stack = invRails.getStackInSlot(inv);
+				ItemStack stack = this.invRails.getStackInSlot(inv);
 				if (stack != null)
 				{
-					boolean placed = RailTools.placeRailAt(stack, worldObj, x, y, z);
+					boolean placed = RailTools.placeRailAt(stack, this.worldObj, x, y, z);
 					if (placed)
 					{
-						worldObj.setBlockMetadataWithNotify(x, y, z, meta.ordinal(), 3);
-						invRails.decrStackSize(inv, 1);
+						this.worldObj.setBlockMetadataWithNotify(x, y, z, meta.ordinal(), 3);
+						this.invRails.decrStackSize(inv, 1);
 					}
 					return placed;
 				}
@@ -694,17 +690,13 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 		}
 
 		for (int jj = j; jj < j + 4; jj++)
-		{
 			for (int ii = xStart; ii <= xEnd; ii++)
-			{
 				for (int kk = zStart; kk <= zEnd; kk++)
 				{
-					Block block = worldObj.getBlock(ii, jj, kk);
+					Block block = this.worldObj.getBlock(ii, jj, kk);
 					if (block == Blocks.lava || block == Blocks.flowing_lava)
 						return true;
 				}
-			}
-		}
 
 		return false;
 	}
@@ -715,18 +707,14 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 		int ii = i;
 		int kk = k;
 		for (int jj = j; jj < j + 3; jj++)
-		{
-			clear = clear && mineBlock(ii, jj, kk, dir);
-		}
+			clear = clear && this.mineBlock(ii, jj, kk, dir);
 
 		if (dir == EnumTrackMeta.NORTH_SOUTH)
 			ii--;
 		else
 			kk--;
 		for (int jj = j; jj < j + 3; jj++)
-		{
-			clear = clear && mineBlock(ii, jj, kk, dir);
-		}
+			clear = clear && this.mineBlock(ii, jj, kk, dir);
 
 		ii = i;
 		kk = k;
@@ -735,50 +723,48 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 		else
 			kk++;
 		for (int jj = j; jj < j + 3; jj++)
-		{
-			clear = clear && mineBlock(ii, jj, kk, dir);
-		}
+			clear = clear && this.mineBlock(ii, jj, kk, dir);
 		return clear;
 	}
 
 	protected boolean mineBlock(int x, int y, int z, EnumTrackMeta dir)
 	{
-		if (worldObj.isAirBlock(x, y, z))
+		if (this.worldObj.isAirBlock(x, y, z))
 			return true;
 
-		Block block = worldObj.getBlock(x, y, z);
+		Block block = this.worldObj.getBlock(x, y, z);
 		if (TrackTools.isRailBlock(block))
 		{
-			int trackMeta = TrackTools.getTrackMeta(worldObj, block, this, x, y, z);
+			int trackMeta = TrackTools.getTrackMeta(this.worldObj, block, this, x, y, z);
 			if (dir.isEqual(trackMeta))
 				return true;
 		}
 		else if (block == Blocks.torch)
 			return true;
 
-		ItemStack head = getStackInSlot(0);
+		ItemStack head = this.getStackInSlot(0);
 		if (head == null)
 			return false;
 
-		int meta = worldObj.getBlockMetadata(x, y, z);
+		int meta = this.worldObj.getBlockMetadata(x, y, z);
 
-		if (!canMineBlock(x, y, z, block, meta))
+		if (!this.canMineBlock(x, y, z, block, meta))
 			return false;
 
 		// TODO gamerforEA code start
-		if (FakePlayerUtils.cantBreak(x, y, z, this.getOwnerFake()))
+		if (EventUtils.cantBreak(this.fake.getPlayer(), x, y, z))
 			return false;
 		// TODO gamerforEA code end
 
-		ArrayList<ItemStack> items = block.getDrops(worldObj, x, y, z, meta, 0);
+		ArrayList<ItemStack> items = block.getDrops(this.worldObj, x, y, z, meta, 0);
 
 		for (ItemStack stack : items)
 		{
 			if (StackFilter.FUEL.matches(stack))
-				stack = InvTools.moveItemStack(stack, invFuel);
+				stack = InvTools.moveItemStack(stack, this.invFuel);
 
 			if (stack != null && stack.stackSize > 0 && InvTools.isStackEqualToBlock(stack, Blocks.gravel))
-				stack = InvTools.moveItemStack(stack, invBallast);
+				stack = InvTools.moveItemStack(stack, this.invBallast);
 
 			if (stack != null && stack.stackSize > 0)
 				stack = CartTools.transferHelper.pushStack(this, stack);
@@ -786,34 +772,34 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 			if (stack != null && stack.stackSize > 0 && !RailcraftConfig.boreDestroysBlocks())
 			{
 				float f = 0.7F;
-				double xr = (double) (worldObj.rand.nextFloat() - 0.5D) * f;
-				double yr = (double) (worldObj.rand.nextFloat() - 0.5D) * f;
-				double zr = (double) (worldObj.rand.nextFloat() - 0.5D) * f;
-				EntityItem entityitem = new EntityItem(worldObj, getXAhead(posX, -3.2) + xr, posY + 0.3 + yr, getZAhead(posZ, -3.2) + zr, stack);
-				worldObj.spawnEntityInWorld(entityitem);
+				double xr = (this.worldObj.rand.nextFloat() - 0.5D) * f;
+				double yr = (this.worldObj.rand.nextFloat() - 0.5D) * f;
+				double zr = (this.worldObj.rand.nextFloat() - 0.5D) * f;
+				EntityItem entityitem = new EntityItem(this.worldObj, this.getXAhead(this.posX, -3.2) + xr, this.posY + 0.3 + yr, this.getZAhead(this.posZ, -3.2) + zr, stack);
+				this.worldObj.spawnEntityInWorld(entityitem);
 			}
 		}
 
-		worldObj.setBlockToAir(x, y, z);
+		this.worldObj.setBlockToAir(x, y, z);
 
 		head.setItemDamage(head.getItemDamage() + 1);
 		if (head.getItemDamage() > head.getMaxDamage())
-			setInventorySlotContents(0, null);
+			this.setInventorySlotContents(0, null);
 		return true;
 	}
 
 	private boolean canMineBlock(int i, int j, int k, Block block, int meta)
 	{
-		ItemStack head = getStackInSlot(0);
+		ItemStack head = this.getStackInSlot(0);
 		if (block instanceof IMineable)
 		{
 			if (head == null)
 				return false;
-			return ((IMineable) block).canMineBlock(worldObj, i, j, k, this, head);
+			return ((IMineable) block).canMineBlock(this.worldObj, i, j, k, this, head);
 		}
-		if (block.getBlockHardness(worldObj, i, j, k) < 0)
+		if (block.getBlockHardness(this.worldObj, i, j, k) < 0)
 			return false;
-		return isMinableBlock(block, meta) && canHeadHarvestBlock(head, block, meta);
+		return this.isMinableBlock(block, meta) && canHeadHarvestBlock(head, block, meta);
 	}
 
 	protected float getLayerHardness(int i, int j, int k, EnumTrackMeta dir)
@@ -822,18 +808,14 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 		int ii = i;
 		int kk = k;
 		for (int jj = j; jj < j + 3; jj++)
-		{
-			hardness += getBlockHardness(ii, jj, kk, dir);
-		}
+			hardness += this.getBlockHardness(ii, jj, kk, dir);
 
 		if (dir == EnumTrackMeta.NORTH_SOUTH)
 			ii--;
 		else
 			kk--;
 		for (int jj = j; jj < j + 3; jj++)
-		{
-			hardness += getBlockHardness(ii, jj, kk, dir);
-		}
+			hardness += this.getBlockHardness(ii, jj, kk, dir);
 
 		ii = i;
 		kk = k;
@@ -842,13 +824,11 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 		else
 			kk++;
 		for (int jj = j; jj < j + 3; jj++)
-		{
-			hardness += getBlockHardness(ii, jj, kk, dir);
-		}
+			hardness += this.getBlockHardness(ii, jj, kk, dir);
 
 		hardness *= HARDNESS_MULTIPLER;
 
-		ItemStack boreSlot = getStackInSlot(0);
+		ItemStack boreSlot = this.getStackInSlot(0);
 		if (boreSlot != null && boreSlot.getItem() instanceof IBoreHead)
 		{
 			IBoreHead head = (IBoreHead) boreSlot.getItem();
@@ -863,13 +843,13 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 
 	protected float getBlockHardness(int x, int y, int z, EnumTrackMeta dir)
 	{
-		if (worldObj.isAirBlock(x, y, z))
+		if (this.worldObj.isAirBlock(x, y, z))
 			return 0;
 
-		Block block = worldObj.getBlock(x, y, z);
+		Block block = this.worldObj.getBlock(x, y, z);
 		if (TrackTools.isRailBlock(block))
 		{
-			int trackMeta = TrackTools.getTrackMeta(worldObj, block, this, x, y, z);
+			int trackMeta = TrackTools.getTrackMeta(this.worldObj, block, this, x, y, z);
 			if (dir.isEqual(trackMeta))
 				return 0;
 		}
@@ -880,11 +860,11 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 		if (block == Blocks.obsidian)
 			return 15;
 
-		int meta = worldObj.getBlockMetadata(x, y, z);
-		if (!canMineBlock(x, y, z, block, meta))
+		int meta = this.worldObj.getBlockMetadata(x, y, z);
+		if (!this.canMineBlock(x, y, z, block, meta))
 			return 0.1f;
 
-		float hardness = block.getBlockHardness(worldObj, x, y, z);
+		float hardness = block.getBlockHardness(this.worldObj, x, y, z);
 		if (hardness <= 0)
 			hardness = 0.1f;
 		return hardness;
@@ -901,7 +881,7 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 	@Override
 	public AxisAlignedBB getBoundingBox()
 	{
-		return boundingBox;
+		return this.boundingBox;
 	}
 
 	@Override
@@ -912,7 +892,7 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 
 	public float getBoreRotationAngle()
 	{
-		return (float) Math.toRadians(boreRotationAngle);
+		return (float) Math.toRadians(this.boreRotationAngle);
 	}
 
 	@Override
@@ -920,39 +900,39 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 	{
 		//        fuel = getFuel();
 		super.writeEntityToNBT(data);
-		data.setByte("facing", (byte) getFacing().ordinal());
-		data.setInteger("delay", getDelay());
-		data.setBoolean("active", isActive());
-		data.setInteger("burnTime", getBurnTime());
-		data.setInteger("fuel", fuel);
+		data.setByte("facing", (byte) this.getFacing().ordinal());
+		data.setInteger("delay", this.getDelay());
+		data.setBoolean("active", this.isActive());
+		data.setInteger("burnTime", this.getBurnTime());
+		data.setInteger("fuel", this.fuel);
 	}
 
 	@Override
 	protected void readEntityFromNBT(NBTTagCompound data)
 	{
 		super.readEntityFromNBT(data);
-		setFacing(ForgeDirection.getOrientation(data.getByte("facing")));
-		setDelay(data.getInteger("delay"));
-		setActive(data.getBoolean("active"));
-		setBurnTime(data.getInteger("burnTime"));
-		setFuel(data.getInteger("fuel"));
+		this.setFacing(ForgeDirection.getOrientation(data.getByte("facing")));
+		this.setDelay(data.getInteger("delay"));
+		this.setActive(data.getBoolean("active"));
+		this.setBurnTime(data.getInteger("burnTime"));
+		this.setFuel(data.getInteger("fuel"));
 	}
 
 	protected int getDelay()
 	{
-		return delay;
+		return this.delay;
 		//        return dataWatcher.getWatchableObjectInt(WATCHER_ID_DELAY);
 	}
 
 	protected void setDelay(int i)
 	{
-		delay = i;
+		this.delay = i;
 		//        dataWatcher.updateObject(WATCHER_ID_DELAY, Integer.valueOf(i));
 	}
 
 	protected boolean isActive()
 	{
-		return active;
+		return this.active;
 		//        return dataWatcher.getWatchableObjectByte(WATCHER_ID_ACTIVE) != 0;
 	}
 
@@ -966,17 +946,17 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 
 	protected boolean isMoving()
 	{
-		return dataWatcher.getWatchableObjectByte(WATCHER_ID_MOVING) != 0;
+		return this.dataWatcher.getWatchableObjectByte(WATCHER_ID_MOVING) != 0;
 	}
 
 	protected void setMoving(boolean move)
 	{
-		dataWatcher.updateObject(WATCHER_ID_MOVING, (byte) (move ? 1 : 0));
+		this.dataWatcher.updateObject(WATCHER_ID_MOVING, (byte) (move ? 1 : 0));
 	}
 
 	public int getBurnTime()
 	{
-		return burnTime;
+		return this.burnTime;
 		//        return dataWatcher.getWatchableObjectInt(WATCHER_ID_BURN_TIME);
 	}
 
@@ -988,87 +968,87 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 
 	public int getFuel()
 	{
-		return fuel;
+		return this.fuel;
 		//        return dataWatcher.getWatchableObjectInt(WATCHER_ID_FUEL);
 	}
 
 	public void setFuel(int i)
 	{
-		fuel = i;
+		this.fuel = i;
 		//        dataWatcher.updateObject(WATCHER_ID_FUEL, Integer.valueOf(i));
 	}
 
 	public boolean outOfFuel()
 	{
-		return getFuel() <= FUEL_CONSUMPTION;
+		return this.getFuel() <= FUEL_CONSUMPTION;
 	}
 
 	public boolean hasFuel()
 	{
-		return getFuel() > 0;
+		return this.getFuel() > 0;
 	}
 
 	protected void stockFuel()
 	{
-		if (InvTools.isEmptySlot(invFuel))
+		if (InvTools.isEmptySlot(this.invFuel))
 		{
 			ItemStack stack = CartTools.transferHelper.pullStack(this, StackFilter.FUEL);
 			if (stack != null)
-				InvTools.moveItemStack(stack, invFuel);
+				InvTools.moveItemStack(stack, this.invFuel);
 		}
 	}
 
 	protected void addFuel()
 	{
 		int burn = 0;
-		for (int slot = 0; slot < invFuel.getSizeInventory(); slot++)
+		for (int slot = 0; slot < this.invFuel.getSizeInventory(); slot++)
 		{
-			ItemStack stack = invFuel.getStackInSlot(slot);
+			ItemStack stack = this.invFuel.getStackInSlot(slot);
 			if (stack != null)
 			{
 				burn = FuelPlugin.getBurnTime(stack);
 				if (burn > 0)
 				{
 					if (stack.getItem().hasContainerItem(stack))
-						invFuel.setInventorySlotContents(slot, stack.getItem().getContainerItem(stack));
+						this.invFuel.setInventorySlotContents(slot, stack.getItem().getContainerItem(stack));
 					else
-						invFuel.decrStackSize(slot, 1);
+						this.invFuel.decrStackSize(slot, 1);
 					break;
 				}
 			}
 		}
 		if (burn > 0)
 		{
-			setBurnTime(burn + getFuel());
-			setFuel(getFuel() + burn);
+			this.setBurnTime(burn + this.getFuel());
+			this.setFuel(this.getFuel() + burn);
 		}
 	}
 
 	public int getBurnProgressScaled(int i)
 	{
-		int burn = getBurnTime();
+		int burn = this.getBurnTime();
 		if (burn == 0)
 			return 0;
 
-		return getFuel() * i / burn;
+		return this.getFuel() * i / burn;
 	}
 
 	protected void spendFuel()
 	{
-		setFuel(getFuel() - FUEL_CONSUMPTION);
+		this.setFuel(this.getFuel() - FUEL_CONSUMPTION);
 	}
 
 	protected void forceUpdateBoreHead()
 	{
-		ItemStack boreStack = getStackInSlot(0);
+		ItemStack boreStack = this.getStackInSlot(0);
 		if (boreStack != null)
 			boreStack = boreStack.copy();
-		dataWatcher.updateObject(WATCHER_ID_BORE_HEAD, boreStack);
+		this.dataWatcher.updateObject(WATCHER_ID_BORE_HEAD, boreStack);
 	}
 
 	public IBoreHead getBoreHead()
 	{
-		ItemStack boreStack = dataWatcher.getWatchableObjectItemStack(WATCHER_ID_BORE_HEAD);
+		ItemStack boreStack = this.dataWatcher.getWatchableObjectItemStack(WATCHER_ID_BORE_HEAD);
 		if (boreStack != null && boreStack.getItem() instanceof IBoreHead)
 			return (IBoreHead) boreStack.getItem();
 		return null;
@@ -1077,16 +1057,16 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 	@Override
 	protected void applyDrag()
 	{
-		motionX *= getDrag();
-		motionY *= 0.0D;
-		motionZ *= getDrag();
+		this.motionX *= this.getDrag();
+		this.motionY *= 0.0D;
+		this.motionZ *= this.getDrag();
 	}
 
 	@Override
 	public List<ItemStack> getItemsDropped()
 	{
 		List<ItemStack> items = new ArrayList<ItemStack>();
-		items.add(getCartItem());
+		items.add(this.getCartItem());
 		return items;
 	}
 
@@ -1099,28 +1079,28 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 	@Override
 	public boolean doInteract(EntityPlayer player)
 	{
-		if (Game.isHost(worldObj))
-			GuiHandler.openGui(EnumGui.CART_BORE, player, worldObj, this);
+		if (Game.isHost(this.worldObj))
+			GuiHandler.openGui(EnumGui.CART_BORE, player, this.worldObj, this);
 		return true;
 	}
 
 	@Override
 	public void markDirty()
 	{
-		if (!isActive())
-			setDelay(STANDARD_DELAY);
+		if (!this.isActive())
+			this.setDelay(STANDARD_DELAY);
 	}
 
 	public final ForgeDirection getFacing()
 	{
-		return ForgeDirection.getOrientation(dataWatcher.getWatchableObjectByte(WATCHER_ID_FACING));
+		return ForgeDirection.getOrientation(this.dataWatcher.getWatchableObjectByte(WATCHER_ID_FACING));
 	}
 
 	protected final void setFacing(ForgeDirection facing)
 	{
-		dataWatcher.updateObject(WATCHER_ID_FACING, (byte) facing.ordinal());
+		this.dataWatcher.updateObject(WATCHER_ID_FACING, (byte) facing.ordinal());
 
-		setYaw();
+		this.setYaw();
 	}
 
 	@Override
@@ -1132,10 +1112,10 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 	@Override
 	public boolean canLinkWithCart(EntityMinecart cart)
 	{
-		double x = getXAhead(posX, -LENGTH / 2);
-		double z = getZAhead(posZ, -LENGTH / 2);
+		double x = this.getXAhead(this.posX, -LENGTH / 2);
+		double z = this.getZAhead(this.posZ, -LENGTH / 2);
 
-		return cart.getDistance(x, posY, z) < LinkageManager.LINKAGE_DISTANCE * 2;
+		return cart.getDistance(x, this.posY, z) < ILinkageManager.LINKAGE_DISTANCE * 2;
 	}
 
 	@Override
@@ -1169,7 +1149,7 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 	@Override
 	public boolean canBeAdjusted(EntityMinecart cart)
 	{
-		return !isActive();
+		return !this.isActive();
 	}
 
 	@Override
@@ -1180,16 +1160,16 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 
 	public IInventory getInventoryFuel()
 	{
-		return invFuel;
+		return this.invFuel;
 	}
 
 	public IInventory getInventoryGravel()
 	{
-		return invBallast;
+		return this.invBallast;
 	}
 
 	public IInventory getInventoryRails()
 	{
-		return invRails;
+		return this.invRails;
 	}
 }

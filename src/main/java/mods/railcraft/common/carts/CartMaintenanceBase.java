@@ -1,6 +1,6 @@
-/* 
+/*
  * Copyright (c) CovertJaguar, 2014 http://railcraft.info
- * 
+ *
  * This code is the property of CovertJaguar
  * and may only be used with explicit written
  * permission unless otherwise specified on the
@@ -11,7 +11,7 @@ package mods.railcraft.common.carts;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.gamerforea.railcraft.FakePlayerUtils;
+import com.gamerforea.eventhelper.util.EventUtils;
 
 import mods.railcraft.api.carts.CartTools;
 import mods.railcraft.api.tracks.RailTools;
@@ -40,7 +40,7 @@ public abstract class CartMaintenanceBase extends CartContainerBase
 	protected void entityInit()
 	{
 		super.entityInit();
-		dataWatcher.addObject(DATA_ID_BLINK, (byte) 0);
+		this.dataWatcher.addObject(DATA_ID_BLINK, (byte) 0);
 	}
 
 	@Override
@@ -51,35 +51,35 @@ public abstract class CartMaintenanceBase extends CartContainerBase
 
 	protected void blink()
 	{
-		dataWatcher.updateObject(DATA_ID_BLINK, (byte) BLINK_DURATION);
+		this.dataWatcher.updateObject(DATA_ID_BLINK, (byte) BLINK_DURATION);
 	}
 
 	protected void setBlink(byte blink)
 	{
-		dataWatcher.updateObject(DATA_ID_BLINK, (byte) blink);
+		this.dataWatcher.updateObject(DATA_ID_BLINK, blink);
 	}
 
 	protected byte getBlink()
 	{
-		return dataWatcher.getWatchableObjectByte(DATA_ID_BLINK);
+		return this.dataWatcher.getWatchableObjectByte(DATA_ID_BLINK);
 	}
 
 	@Override
 	public void onUpdate()
 	{
 		super.onUpdate();
-		if (Game.isNotHost(worldObj))
+		if (Game.isNotHost(this.worldObj))
 			return;
 
-		if (isBlinking())
-			setBlink((byte) (getBlink() - 1));
+		if (this.isBlinking())
+			this.setBlink((byte) (this.getBlink() - 1));
 	}
 
 	@Override
 	public List<ItemStack> getItemsDropped()
 	{
 		List<ItemStack> items = new ArrayList<ItemStack>();
-		items.add(getCartItem());
+		items.add(this.getCartItem());
 		return items;
 	}
 
@@ -92,7 +92,7 @@ public abstract class CartMaintenanceBase extends CartContainerBase
 	@Override
 	public double getDrag()
 	{
-		return EntityCartTrackRelayer.DRAG_FACTOR;
+		return CartMaintenanceBase.DRAG_FACTOR;
 	}
 
 	@Override
@@ -103,27 +103,27 @@ public abstract class CartMaintenanceBase extends CartContainerBase
 
 	public boolean isBlinking()
 	{
-		return dataWatcher.getWatchableObjectByte(DATA_ID_BLINK) > 0;
+		return this.dataWatcher.getWatchableObjectByte(DATA_ID_BLINK) > 0;
 	}
 
 	protected boolean placeNewTrack(int x, int y, int z, int slotStock, int meta)
 	{
-		ItemStack trackStock = getStackInSlot(slotStock);
+		ItemStack trackStock = this.getStackInSlot(slotStock);
 		if (trackStock != null)
 		{
 			// TODO gamerforEA code start
-			if (FakePlayerUtils.cantBreak(x, y, z, this.getOwnerFake()))
+			if (EventUtils.cantBreak(this.fake.getPlayer(), x, y, z))
 				return false;
 			// TODO gamerforEA code end
 
-			if (RailTools.placeRailAt(trackStock, worldObj, x, y, z))
+			if (RailTools.placeRailAt(trackStock, this.worldObj, x, y, z))
 			{
-				worldObj.setBlockMetadataWithNotify(x, y, z, meta, 0x02);
-				Block block = worldObj.getBlock(x, y, z);
-				block.onNeighborBlockChange(worldObj, x, y, z, block);
-				worldObj.markBlockForUpdate(x, y, z);
-				decrStackSize(slotStock, 1);
-				blink();
+				this.worldObj.setBlockMetadataWithNotify(x, y, z, meta, 0x02);
+				Block block = this.worldObj.getBlock(x, y, z);
+				block.onNeighborBlockChange(this.worldObj, x, y, z, block);
+				this.worldObj.markBlockForUpdate(x, y, z);
+				this.decrStackSize(slotStock, 1);
+				this.blink();
 				return true;
 			}
 		}
@@ -133,20 +133,18 @@ public abstract class CartMaintenanceBase extends CartContainerBase
 	protected int removeOldTrack(int x, int y, int z, Block block)
 	{
 		// TODO gamerforEA code start
-		if (FakePlayerUtils.cantBreak(x, y, z, this.getOwnerFake()))
-			return worldObj.getBlockMetadata(x, y, z);
+		if (EventUtils.cantBreak(this.fake.getPlayer(), x, y, z))
+			return this.worldObj.getBlockMetadata(x, y, z);
 		// TODO gamerforEA code end
 
-		List<ItemStack> drops = block.getDrops(worldObj, x, y, z, 0, 0);
+		List<ItemStack> drops = block.getDrops(this.worldObj, x, y, z, 0, 0);
 
 		for (ItemStack stack : drops)
-		{
 			CartTools.offerOrDropItem(this, stack);
-		}
-		int meta = worldObj.getBlockMetadata(x, y, z);
+		int meta = this.worldObj.getBlockMetadata(x, y, z);
 		if (((BlockRailBase) block).isPowered())
 			meta = meta & 7;
-		worldObj.setBlockToAir(x, y, z);
+		this.worldObj.setBlockToAir(x, y, z);
 		return meta;
 	}
 

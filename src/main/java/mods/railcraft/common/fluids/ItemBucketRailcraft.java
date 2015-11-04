@@ -1,6 +1,6 @@
-/* 
+/*
  * Copyright (c) CovertJaguar, 2014 http://railcraft.info
- * 
+ *
  * This code is the property of CovertJaguar
  * and may only be used with explicit written
  * permission unless otherwise specified on the
@@ -8,7 +8,7 @@
  */
 package mods.railcraft.common.fluids;
 
-import com.gamerforea.railcraft.FakePlayerUtils;
+import com.gamerforea.eventhelper.util.EventUtils;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -37,15 +37,15 @@ public class ItemBucketRailcraft extends Item
 	public ItemBucketRailcraft(Fluid fluid)
 	{
 		this.fluid = fluid;
-		setMaxStackSize(1);
-		setContainerItem(Items.bucket);
-		setCreativeTab(CreativePlugin.RAILCRAFT_TAB);
+		this.setMaxStackSize(1);
+		this.setContainerItem(Items.bucket);
+		this.setCreativeTab(CreativePlugin.RAILCRAFT_TAB);
 	}
 
 	@Override
 	public Item setUnlocalizedName(String name)
 	{
-		iconName = MiscTools.cleanTag(name);
+		this.iconName = MiscTools.cleanTag(name);
 		return super.setUnlocalizedName(name);
 	}
 
@@ -53,19 +53,19 @@ public class ItemBucketRailcraft extends Item
 	@SideOnly(Side.CLIENT)
 	public void registerIcons(IIconRegister par1IconRegister)
 	{
-		this.itemIcon = par1IconRegister.registerIcon("railcraft:" + iconName);
+		this.itemIcon = par1IconRegister.registerIcon("railcraft:" + this.iconName);
 	}
 
 	public ItemBucketRailcraft setContainerItemStack(ItemStack stack)
 	{
-		container = stack;
+		this.container = stack;
 		return this;
 	}
 
 	@Override
 	public ItemStack getContainerItem(ItemStack stack)
 	{
-		return container.copy();
+		return this.container.copy();
 	}
 
 	@Override
@@ -92,12 +92,12 @@ public class ItemBucketRailcraft extends Item
 				return stack;
 
 			// TODO gamerforEA code start
-			if (FakePlayerUtils.cantBreak(x, y, z, player))
+			if (EventUtils.cantBreak(player, x, y, z))
 				return stack;
 			// TODO gamerforEA code end
 
 			if (this.tryPlaceContainedLiquid(world, x, y, z) && !player.capabilities.isCreativeMode)
-				return getContainerItem(stack);
+				return this.getContainerItem(stack);
 		}
 
 		return stack;
@@ -105,7 +105,7 @@ public class ItemBucketRailcraft extends Item
 
 	private boolean tryPlaceContainedLiquid(World world, int x, int y, int z)
 	{
-		if (fluid.getBlock() == null)
+		if (this.fluid.getBlock() == null)
 			return false;
 
 		Material material = world.getBlock(x, y, z).getMaterial();
@@ -116,7 +116,7 @@ public class ItemBucketRailcraft extends Item
 		if (!world.isRemote && !material.isSolid() && !material.isLiquid())
 			world.func_147480_a(x, y, z, true);
 
-		Block block = fluid.getBlock();
+		Block block = this.fluid.getBlock();
 		world.setBlock(x, y, z, block, block instanceof BlockFluidFinite ? 15 : 0, 3);
 		return true;
 	}

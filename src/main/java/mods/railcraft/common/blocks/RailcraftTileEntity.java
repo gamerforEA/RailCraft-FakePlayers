@@ -1,6 +1,6 @@
-/* 
+/*
  * Copyright (c) CovertJaguar, 2014 http://railcraft.info
- * 
+ *
  * This code is the property of CovertJaguar
  * and may only be used with explicit written
  * permission unless otherwise specified on the
@@ -13,10 +13,10 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
-import com.gamerforea.railcraft.FakePlayerUtils;
-import com.google.common.base.Strings;
+import com.gamerforea.eventhelper.fake.FakePlayerContainer;
+import com.gamerforea.eventhelper.fake.FakePlayerContainerTileEntity;
+import com.gamerforea.railcraft.ModUtils;
 import com.mojang.authlib.GameProfile;
 
 import cpw.mods.fml.common.network.internal.FMLProxyPacket;
@@ -37,7 +37,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.FakePlayer;
 
 public abstract class RailcraftTileEntity extends TileEntity implements INetworkedObject, IOwnable
 {
@@ -47,18 +46,7 @@ public abstract class RailcraftTileEntity extends TileEntity implements INetwork
 	private boolean sendClientUpdate = false;
 
 	// TODO gamerforEA code start
-	public GameProfile ownerProfile;
-	private FakePlayer ownerFake;
-
-	public FakePlayer getOwnerFake()
-	{
-		if (this.ownerFake != null)
-			return this.ownerFake;
-		else if (this.ownerProfile != null)
-			return this.ownerFake = FakePlayerUtils.create(this.worldObj, this.ownerProfile);
-		else
-			return FakePlayerUtils.getModFake(this.worldObj);
-	}
+	public final FakePlayerContainer fake = new FakePlayerContainerTileEntity(ModUtils.profile, this);
 	// TODO gamerforEA code end
 
 	public static boolean isUseableByPlayerHelper(TileEntity tile, EntityPlayer player)
@@ -72,18 +60,18 @@ public abstract class RailcraftTileEntity extends TileEntity implements INetwork
 
 	public AdjacentTileCache getTileCache()
 	{
-		return tileCache;
+		return this.tileCache;
 	}
 
 	@Override
 	public void updateEntity()
 	{
 		super.updateEntity();
-		clock++;
+		this.clock++;
 
-		if (sendClientUpdate)
+		if (this.sendClientUpdate)
 		{
-			sendClientUpdate = false;
+			this.sendClientUpdate = false;
 			PacketBuilder.instance().sendTileEntityPacket(this);
 		}
 	}
@@ -111,20 +99,20 @@ public abstract class RailcraftTileEntity extends TileEntity implements INetwork
 	public void markBlockForUpdate()
 	{
 		//        System.out.println("updating");
-		if (worldObj != null)
-			worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+		if (this.worldObj != null)
+			this.worldObj.markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);
 	}
 
 	public void notifyBlocksOfNeighborChange()
 	{
-		if (worldObj != null)
-			WorldPlugin.notifyBlocksOfNeighborChange(worldObj, xCoord, yCoord, zCoord, getBlockType());
+		if (this.worldObj != null)
+			WorldPlugin.notifyBlocksOfNeighborChange(this.worldObj, this.xCoord, this.yCoord, this.zCoord, this.getBlockType());
 	}
 
 	public void sendUpdateToClient()
 	{
-		if (canUpdate())
-			sendClientUpdate = true;
+		if (this.canUpdate())
+			this.sendClientUpdate = true;
 		else
 			PacketBuilder.instance().sendTileEntityPacket(this);
 	}
@@ -133,56 +121,57 @@ public abstract class RailcraftTileEntity extends TileEntity implements INetwork
 	{
 		if (entityliving instanceof EntityPlayer)
 		{
-			owner = ((EntityPlayer) entityliving).getGameProfile();
+			this.owner = ((EntityPlayer) entityliving).getGameProfile();
 
 			// TODO gamerforEA code start
-			this.ownerProfile = this.owner;
+			this.fake.profile = this.owner;
 			// TODO gamerforEA code end
 		}
 	}
 
 	public void onNeighborBlockChange(Block id)
 	{
-		tileCache.onNeighborChange();
+		this.tileCache.onNeighborChange();
 	}
 
 	@Override
 	public void invalidate()
 	{
-		tileCache.purge();
+		this.tileCache.purge();
 		super.invalidate();
 	}
 
 	@Override
 	public void validate()
 	{
-		tileCache.purge();
+		this.tileCache.purge();
 		super.validate();
 	}
 
 	public final int getDimension()
 	{
-		if (worldObj == null)
+		if (this.worldObj == null)
 			return 0;
-		return worldObj.provider.dimensionId;
+		return this.worldObj.provider.dimensionId;
 	}
 
 	@Override
 	public final GameProfile getOwner()
 	{
-		return owner;
+		return this.owner;
 	}
 
 	public boolean isOwner(GameProfile player)
 	{
-		return PlayerPlugin.isSamePlayer(owner, player);
+		return PlayerPlugin.isSamePlayer(this.owner, player);
 	}
 
 	public String getName()
 	{
-		return LocalizationPlugin.translate(getLocalizationTag());
+		return LocalizationPlugin.translate(this.getLocalizationTag());
 	}
 
+	@Override
 	public abstract String getLocalizationTag();
 
 	public List<String> getDebugOutput()
@@ -190,9 +179,9 @@ public abstract class RailcraftTileEntity extends TileEntity implements INetwork
 		List<String> debug = new ArrayList<String>();
 		debug.add("Railcraft Tile Entity Data Dump");
 		debug.add("Object: " + this);
-		debug.add(String.format("Coordinates: d=%d, %d,%d,%d", worldObj.provider.dimensionId, xCoord, yCoord, zCoord));
-		debug.add("Owner: " + (owner == null ? "null" : owner.getName()));
-		debug.addAll(tileCache.getDebugOutput());
+		debug.add(String.format("Coordinates: d=%d, %d,%d,%d", this.worldObj.provider.dimensionId, this.xCoord, this.yCoord, this.zCoord));
+		debug.add("Owner: " + (this.owner == null ? "null" : this.owner.getName()));
+		debug.addAll(this.tileCache.getDebugOutput());
 		return debug;
 	}
 
@@ -200,17 +189,13 @@ public abstract class RailcraftTileEntity extends TileEntity implements INetwork
 	public void writeToNBT(NBTTagCompound data)
 	{
 		super.writeToNBT(data);
-		if (owner.getName() != null)
-			data.setString("owner", owner.getName());
-		if (owner.getId() != null)
-			data.setString("ownerId", owner.getId().toString());
+		if (this.owner.getName() != null)
+			data.setString("owner", this.owner.getName());
+		if (this.owner.getId() != null)
+			data.setString("ownerId", this.owner.getId().toString());
 
 		// TODO gamerforEA code start
-		if (this.ownerProfile != null)
-		{
-			data.setString("ownerUUID", this.ownerProfile.getId().toString());
-			data.setString("ownerName", this.ownerProfile.getName());
-		}
+		this.fake.writeToNBT(data);
 		// TODO gamerforEA code end
 	}
 
@@ -218,38 +203,32 @@ public abstract class RailcraftTileEntity extends TileEntity implements INetwork
 	public void readFromNBT(NBTTagCompound data)
 	{
 		super.readFromNBT(data);
-		owner = PlayerPlugin.readOwnerFromNBT(data);
+		this.owner = PlayerPlugin.readOwnerFromNBT(data);
 
 		// TODO gamerforEA code start
-		String uuid = data.getString("ownerUUID");
-		if (!Strings.isNullOrEmpty(uuid))
-		{
-			String name = data.getString("ownerName");
-			if (!Strings.isNullOrEmpty(name))
-				this.ownerProfile = new GameProfile(UUID.fromString(uuid), name);
-		}
+		this.fake.readFromNBT(data);
 		// TODO gamerforEA code end
 	}
 
 	public final int getX()
 	{
-		return xCoord;
+		return this.xCoord;
 	}
 
 	public final int getY()
 	{
-		return yCoord;
+		return this.yCoord;
 	}
 
 	public final int getZ()
 	{
-		return zCoord;
+		return this.zCoord;
 	}
 
 	@Override
 	public final World getWorld()
 	{
-		return worldObj;
+		return this.worldObj;
 	}
 
 	public abstract short getId();

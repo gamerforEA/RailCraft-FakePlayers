@@ -1,6 +1,6 @@
-/* 
+/*
  * Copyright (c) CovertJaguar, 2014 http://railcraft.info
- * 
+ *
  * This code is the property of CovertJaguar
  * and may only be used with explicit written
  * permission unless otherwise specified on the
@@ -12,7 +12,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-import com.gamerforea.railcraft.FakePlayerUtils;
+import com.gamerforea.eventhelper.util.EventUtils;
 
 import mods.railcraft.api.electricity.IElectricGrid;
 import mods.railcraft.api.tracks.ITrackInstance;
@@ -80,26 +80,26 @@ public class TileForceTrackEmitter extends TileMachineBase implements IElectricG
 	public void onNeighborBlockChange(Block block)
 	{
 		super.onNeighborBlockChange(block);
-		checkRedstone();
+		this.checkRedstone();
 	}
 
 	@Override
 	public void onBlockPlacedBy(EntityLivingBase entityliving, ItemStack stack)
 	{
 		super.onBlockPlacedBy(entityliving, stack);
-		facing = MiscTools.getHorizontalSideClosestToPlayer(worldObj, xCoord, yCoord, zCoord, entityliving);
-		checkRedstone();
+		this.facing = MiscTools.getHorizontalSideClosestToPlayer(this.worldObj, this.xCoord, this.yCoord, this.zCoord, entityliving);
+		this.checkRedstone();
 	}
 
 	private void checkRedstone()
 	{
-		if (Game.isNotHost(getWorld()))
+		if (Game.isNotHost(this.getWorld()))
 			return;
-		boolean p = PowerPlugin.isBlockBeingPowered(worldObj, xCoord, yCoord, zCoord);
-		if (powered != p)
+		boolean p = PowerPlugin.isBlockBeingPowered(this.worldObj, this.xCoord, this.yCoord, this.zCoord);
+		if (this.powered != p)
 		{
-			powered = p;
-			sendUpdateToClient();
+			this.powered = p;
+			this.sendUpdateToClient();
 		}
 	}
 
@@ -107,12 +107,12 @@ public class TileForceTrackEmitter extends TileMachineBase implements IElectricG
 	public void onBlockRemoval()
 	{
 		super.onBlockRemoval();
-		while (numTracks > 0)
+		while (this.numTracks > 0)
 		{
-			int x = xCoord + numTracks * facing.offsetX;
-			int y = yCoord + 1;
-			int z = zCoord + numTracks * facing.offsetZ;
-			removeTrack(x, y, z);
+			int x = this.xCoord + this.numTracks * this.facing.offsetX;
+			int y = this.yCoord + 1;
+			int z = this.zCoord + this.numTracks * this.facing.offsetZ;
+			this.removeTrack(x, y, z);
 		}
 	}
 
@@ -121,39 +121,39 @@ public class TileForceTrackEmitter extends TileMachineBase implements IElectricG
 	{
 		super.updateEntity();
 
-		if (Game.isNotHost(getWorld()))
+		if (Game.isNotHost(this.getWorld()))
 			return;
 
-		double draw = getDraw(numTracks);
-		if (powered && chargeHandler.removeCharge(draw) >= draw)
-			switch (state)
+		double draw = getDraw(this.numTracks);
+		if (this.powered && this.chargeHandler.removeCharge(draw) >= draw)
+			switch (this.state)
 			{
 				case RETRACTED:
 				case RETRACTING:
 				case HALTED:
-					state = State.EXTENDING;
+					this.state = State.EXTENDING;
 					break;
 				case EXTENDED:
-					if (clock % TICKS_PER_REFRESH == 0)
-						state = State.EXTENDING;
+					if (this.clock % TICKS_PER_REFRESH == 0)
+						this.state = State.EXTENDING;
 					break;
 			}
-		else if (state == State.EXTENDED || state == State.EXTENDING || state == State.HALTED)
-			state = State.RETRACTING;
+		else if (this.state == State.EXTENDED || this.state == State.EXTENDING || this.state == State.HALTED)
+			this.state = State.RETRACTING;
 
-		state.doAction(this);
+		this.state.doAction(this);
 
-		chargeHandler.tick();
+		this.chargeHandler.tick();
 	}
 
 	private void spawnParticles(int x, int y, int z)
 	{
-		EffectManager.instance.forceTrackSpawnEffect(worldObj, x, y, z);
+		EffectManager.instance.forceTrackSpawnEffect(this.worldObj, x, y, z);
 	}
 
 	private void extended()
 	{
-		TileEntity tile = tileCache.getTileOnSide(ForgeDirection.UP);
+		TileEntity tile = this.tileCache.getTileOnSide(ForgeDirection.UP);
 		if (tile instanceof TileTrack)
 		{
 			TileTrack trackTile = (TileTrack) tile;
@@ -165,44 +165,44 @@ public class TileForceTrackEmitter extends TileMachineBase implements IElectricG
 
 	private void extend()
 	{
-		if (!hasPowerToExtend())
-			state = State.HALTED;
-		if (numTracks >= MAX_TRACKS)
-			state = State.EXTENDED;
-		else if (clock % TICKS_PER_ACTION == 0)
+		if (!this.hasPowerToExtend())
+			this.state = State.HALTED;
+		if (this.numTracks >= MAX_TRACKS)
+			this.state = State.EXTENDED;
+		else if (this.clock % TICKS_PER_ACTION == 0)
 		{
-			int x = xCoord + (numTracks + 1) * facing.offsetX;
-			int y = yCoord + 1;
-			int z = zCoord + (numTracks + 1) * facing.offsetZ;
-			if (WorldPlugin.blockExists(worldObj, x, y, z))
+			int x = this.xCoord + (this.numTracks + 1) * this.facing.offsetX;
+			int y = this.yCoord + 1;
+			int z = this.zCoord + (this.numTracks + 1) * this.facing.offsetZ;
+			if (WorldPlugin.blockExists(this.worldObj, x, y, z))
 			{
-				Block block = WorldPlugin.getBlock(worldObj, x, y, z);
+				Block block = WorldPlugin.getBlock(this.worldObj, x, y, z);
 				EnumTrackMeta meta;
-				if (facing == ForgeDirection.NORTH || facing == ForgeDirection.SOUTH)
+				if (this.facing == ForgeDirection.NORTH || this.facing == ForgeDirection.SOUTH)
 					meta = EnumTrackMeta.NORTH_SOUTH;
 				else
 					meta = EnumTrackMeta.EAST_WEST;
-				if (!placeTrack(x, y, z, block, meta) && !claimTrack(x, y, z, block, meta))
-					state = State.EXTENDED;
+				if (!this.placeTrack(x, y, z, block, meta) && !this.claimTrack(x, y, z, block, meta))
+					this.state = State.EXTENDED;
 			}
 			else
-				state = State.HALTED;
+				this.state = State.HALTED;
 		}
 	}
 
 	private boolean placeTrack(int x, int y, int z, Block block, EnumTrackMeta meta)
 	{
-		if (WorldPlugin.blockIsAir(worldObj, x, y, z, block))
+		if (WorldPlugin.blockIsAir(this.worldObj, x, y, z, block))
 		{
 			// TODO gamerforEA code start
-			if (FakePlayerUtils.cantBreak(x, y, z, this.getOwnerFake()))
+			if (EventUtils.cantBreak(this.fake.getPlayer(), x, y, z))
 				return false;
 			// TODO gamerforEA code end
 
-			spawnParticles(x, y, z);
-			TileTrack track = TrackTools.placeTrack(EnumTrack.FORCE.getTrackSpec(), worldObj, x, y, z, meta.ordinal());
+			this.spawnParticles(x, y, z);
+			TileTrack track = TrackTools.placeTrack(EnumTrack.FORCE.getTrackSpec(), this.worldObj, x, y, z, meta.ordinal());
 			((TrackForce) track.getTrackInstance()).setEmitter(this);
-			numTracks++;
+			this.numTracks++;
 			return true;
 		}
 		return false;
@@ -212,9 +212,9 @@ public class TileForceTrackEmitter extends TileMachineBase implements IElectricG
 	{
 		if (block != RailcraftBlocks.getBlockTrack())
 			return false;
-		if (TrackTools.getTrackMetaEnum(worldObj, block, null, x, y, z) != meta)
+		if (TrackTools.getTrackMetaEnum(this.worldObj, block, null, x, y, z) != meta)
 			return false;
-		TileEntity tile = WorldPlugin.getBlockTile(worldObj, x, y, z);
+		TileEntity tile = WorldPlugin.getBlockTile(this.worldObj, x, y, z);
 		if (!TrackTools.isTrackSpec(tile, EnumTrack.FORCE.getTrackSpec()))
 			return false;
 		TrackForce track = (TrackForce) ((TileTrack) tile).getTrackInstance();
@@ -222,7 +222,7 @@ public class TileForceTrackEmitter extends TileMachineBase implements IElectricG
 		if (emitter == null || emitter == this)
 		{
 			track.setEmitter(this);
-			numTracks++;
+			this.numTracks++;
 			return true;
 		}
 		return false;
@@ -230,7 +230,7 @@ public class TileForceTrackEmitter extends TileMachineBase implements IElectricG
 
 	public int getNumberOfTracks()
 	{
-		return numTracks;
+		return this.numTracks;
 	}
 
 	public static double getDraw(int tracks)
@@ -240,41 +240,41 @@ public class TileForceTrackEmitter extends TileMachineBase implements IElectricG
 
 	public boolean hasPowerToExtend()
 	{
-		return chargeHandler.getCharge() >= getDraw(numTracks + 1);
+		return this.chargeHandler.getCharge() >= getDraw(this.numTracks + 1);
 	}
 
 	private void retract()
 	{
-		if (numTracks <= 0)
-			state = State.RETRACTED;
-		else if (clock % TICKS_PER_ACTION == 0)
+		if (this.numTracks <= 0)
+			this.state = State.RETRACTED;
+		else if (this.clock % TICKS_PER_ACTION == 0)
 		{
-			int x = xCoord + numTracks * facing.offsetX;
-			int y = yCoord + 1;
-			int z = zCoord + numTracks * facing.offsetZ;
-			removeTrack(x, y, z);
+			int x = this.xCoord + this.numTracks * this.facing.offsetX;
+			int y = this.yCoord + 1;
+			int z = this.zCoord + this.numTracks * this.facing.offsetZ;
+			this.removeTrack(x, y, z);
 		}
 	}
 
 	private void removeTrack(int x, int y, int z)
 	{
-		if (WorldPlugin.blockExists(worldObj, x, y, z) && TrackTools.isTrackAt(worldObj, x, y, z, EnumTrack.FORCE))
+		if (WorldPlugin.blockExists(this.worldObj, x, y, z) && TrackTools.isTrackAt(this.worldObj, x, y, z, EnumTrack.FORCE))
 		{
 			// TODO gamerforEA code start
-			if (FakePlayerUtils.cantBreak(x, y, z, this.getOwnerFake()))
+			if (EventUtils.cantBreak(this.fake.getPlayer(), x, y, z))
 				return;
 			// TODO gamerforEA code end
 
-			spawnParticles(x, y, z);
-			WorldPlugin.setBlockToAir(worldObj, x, y, z);
+			this.spawnParticles(x, y, z);
+			WorldPlugin.setBlockToAir(this.worldObj, x, y, z);
 		}
-		numTracks--;
+		this.numTracks--;
 	}
 
 	@Override
 	public ChargeHandler getChargeHandler()
 	{
-		return chargeHandler;
+		return this.chargeHandler;
 	}
 
 	@Override
@@ -292,27 +292,27 @@ public class TileForceTrackEmitter extends TileMachineBase implements IElectricG
 	@Override
 	public IIcon getIcon(int side)
 	{
-		if (side == facing.ordinal())
-			return getMachineType().getTexture(powered ? 7 : 8);
-		return getMachineType().getTexture(powered ? 0 : 6);
+		if (side == this.facing.ordinal())
+			return this.getMachineType().getTexture(this.powered ? 7 : 8);
+		return this.getMachineType().getTexture(this.powered ? 0 : 6);
 	}
 
 	@Override
 	public boolean rotateBlock(ForgeDirection axis)
 	{
-		if (Game.isNotHost(worldObj))
+		if (Game.isNotHost(this.worldObj))
 			return false;
-		if (state != State.RETRACTED)
+		if (this.state != State.RETRACTED)
 			return false;
 		if (axis == ForgeDirection.UP || axis == ForgeDirection.DOWN)
 			return false;
-		if (facing == axis)
-			facing = axis.getOpposite();
+		if (this.facing == axis)
+			this.facing = axis.getOpposite();
 		else
-			facing = axis;
-		numTracks = 0;
-		markBlockForUpdate();
-		notifyBlocksOfNeighborChange();
+			this.facing = axis;
+		this.numTracks = 0;
+		this.markBlockForUpdate();
+		this.notifyBlocksOfNeighborChange();
 		return true;
 	}
 
@@ -320,30 +320,30 @@ public class TileForceTrackEmitter extends TileMachineBase implements IElectricG
 	public void writeToNBT(NBTTagCompound data)
 	{
 		super.writeToNBT(data);
-		chargeHandler.writeToNBT(data);
-		data.setBoolean("powered", powered);
-		data.setByte("facing", (byte) facing.ordinal());
-		data.setInteger("numTracks", numTracks);
-		data.setString("state", state.name());
+		this.chargeHandler.writeToNBT(data);
+		data.setBoolean("powered", this.powered);
+		data.setByte("facing", (byte) this.facing.ordinal());
+		data.setInteger("numTracks", this.numTracks);
+		data.setString("state", this.state.name());
 	}
 
 	@Override
 	public void readFromNBT(NBTTagCompound data)
 	{
 		super.readFromNBT(data);
-		chargeHandler.readFromNBT(data);
-		powered = data.getBoolean("powered");
-		facing = ForgeDirection.getOrientation(data.getByte("facing"));
-		numTracks = data.getInteger("numTracks");
-		state = State.valueOf(data.getString("state"));
+		this.chargeHandler.readFromNBT(data);
+		this.powered = data.getBoolean("powered");
+		this.facing = ForgeDirection.getOrientation(data.getByte("facing"));
+		this.numTracks = data.getInteger("numTracks");
+		this.state = State.valueOf(data.getString("state"));
 	}
 
 	@Override
 	public void writePacketData(DataOutputStream data) throws IOException
 	{
 		super.writePacketData(data);
-		data.writeBoolean(powered);
-		data.writeByte((byte) facing.ordinal());
+		data.writeBoolean(this.powered);
+		data.writeByte((byte) this.facing.ordinal());
 	}
 
 	@Override
@@ -354,25 +354,25 @@ public class TileForceTrackEmitter extends TileMachineBase implements IElectricG
 		boolean update = false;
 
 		boolean p = data.readBoolean();
-		if (powered != p)
+		if (this.powered != p)
 		{
-			powered = p;
+			this.powered = p;
 			update = true;
 		}
 		byte f = data.readByte();
-		if (facing != ForgeDirection.getOrientation(f))
+		if (this.facing != ForgeDirection.getOrientation(f))
 		{
-			facing = ForgeDirection.getOrientation(f);
+			this.facing = ForgeDirection.getOrientation(f);
 			update = true;
 		}
 
 		if (update)
-			markBlockForUpdate();
+			this.markBlockForUpdate();
 	}
 
 	public ForgeDirection getFacing()
 	{
-		return facing;
+		return this.facing;
 	}
 
 }
