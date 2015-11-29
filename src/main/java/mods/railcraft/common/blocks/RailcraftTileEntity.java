@@ -13,6 +13,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import com.gamerforea.eventhelper.fake.FakePlayerContainer;
 import com.gamerforea.eventhelper.fake.FakePlayerContainerTileEntity;
@@ -44,6 +45,7 @@ public abstract class RailcraftTileEntity extends TileEntity implements INetwork
 	protected int clock = MiscTools.getRand().nextInt();
 	private GameProfile owner = new GameProfile(null, "[Railcraft]");
 	private boolean sendClientUpdate = false;
+	private UUID uuid;
 
 	// TODO gamerforEA code start
 	public final FakePlayerContainer fake = new FakePlayerContainerTileEntity(ModUtils.profile, this);
@@ -56,6 +58,13 @@ public abstract class RailcraftTileEntity extends TileEntity implements INetwork
 		if (tile.getWorldObj().getTileEntity(tile.xCoord, tile.yCoord, tile.zCoord) != tile)
 			return false;
 		return player.getDistanceSq(tile.xCoord, tile.yCoord, tile.zCoord) <= 64;
+	}
+
+	public UUID getUUID()
+	{
+		if (this.uuid == null)
+			this.uuid = UUID.randomUUID();
+		return this.uuid;
 	}
 
 	public AdjacentTileCache getTileCache()
@@ -194,6 +203,8 @@ public abstract class RailcraftTileEntity extends TileEntity implements INetwork
 		if (this.owner.getId() != null)
 			data.setString("ownerId", this.owner.getId().toString());
 
+		MiscTools.writeUUID(data, "uuid", this.uuid);
+
 		// TODO gamerforEA code start
 		this.fake.writeToNBT(data);
 		// TODO gamerforEA code end
@@ -204,6 +215,7 @@ public abstract class RailcraftTileEntity extends TileEntity implements INetwork
 	{
 		super.readFromNBT(data);
 		this.owner = PlayerPlugin.readOwnerFromNBT(data);
+		this.uuid = MiscTools.readUUID(data, "uuid");
 
 		// TODO gamerforEA code start
 		this.fake.readFromNBT(data);

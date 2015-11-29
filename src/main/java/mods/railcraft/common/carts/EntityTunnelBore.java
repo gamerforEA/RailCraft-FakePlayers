@@ -176,6 +176,12 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 		return true;
 	}
 
+	@Override
+	public ICartType getCartType()
+	{
+		return EnumCart.BORE;
+	}
+
 	private boolean isMinableBlock(Block block, int meta)
 	{
 		if (RailcraftConfig.boreMinesAllBlocks())
@@ -751,7 +757,14 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 		if (!this.canMineBlock(x, y, z, block, meta))
 			return false;
 
-		// TODO gamerforEA code start
+		/* TODO gamerforEA code replace, old code:
+		// Start of Event Fire
+		BreakEvent breakEvent = new BreakEvent(x, y, z, worldObj, block, meta, PlayerPlugin.getFakePlayer((WorldServer) worldObj, posX, posY, posZ));
+		MinecraftForge.EVENT_BUS.post(breakEvent);
+
+		if (breakEvent.isCanceled())
+			return false;
+		// End of Event Fire */
 		if (EventUtils.cantBreak(this.fake.getPlayer(), x, y, z))
 			return false;
 		// TODO gamerforEA code end

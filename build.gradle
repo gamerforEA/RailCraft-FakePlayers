@@ -19,7 +19,7 @@ apply plugin: 'forge'
 
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
-version = "1.7.10-9.7.0.0"
+version = "1.7.10-9.8.0.0"
 group= "mods.railcraft"
 archivesBaseName = "Railcraft"
 
