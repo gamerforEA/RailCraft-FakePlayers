@@ -15,21 +15,28 @@ buildscript {
 	}
 }
 
+repositories {
+	flatDir {
+		dirs 'lib'
+	}
+}
+
 apply plugin: 'forge'
 
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
-version = "1.7.10-9.8.0.0"
+version = "1.7.10-9.10.0.0"
 group= "mods.railcraft"
 archivesBaseName = "Railcraft"
 
 minecraft {
-	version = "1.7.10-10.13.4.1541-1.7.10"
+	version = "1.7.10-10.13.4.1614-1.7.10"
 	runDir = "eclipse"
 }
 
 dependencies {
-	compile fileTree(dir: 'lib', include: '*-dev.jar')
+	compile name: 'EventHelper-1.6-dev'
+	compile name: archivesBaseName + '-' + version + '-dev'
 }
 
 jar {

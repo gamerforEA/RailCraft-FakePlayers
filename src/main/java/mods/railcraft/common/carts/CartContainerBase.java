@@ -155,6 +155,7 @@ public abstract class CartContainerBase extends EntityMinecartContainer implemen
 		}
 	}
 
+	@SuppressWarnings("incomplete-switch")
 	private ForgeDirection determineTravelDirection(EnumTrackMeta trackMeta)
 	{
 		if (trackMeta.isStraightTrack())

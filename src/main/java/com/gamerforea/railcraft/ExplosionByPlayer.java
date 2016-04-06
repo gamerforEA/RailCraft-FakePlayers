@@ -31,7 +31,7 @@ public final class ExplosionByPlayer extends Explosion
 	{
 		super(world, exploder, x, y, z, size);
 		this.world = world;
-		this.player = player == null ? ModUtils.getModFake(world) : player;
+		this.player = player == null ? exploder instanceof EntityPlayer ? (EntityPlayer) exploder : ModUtils.getModFake(world) : player;
 	}
 
 	@Override
@@ -40,13 +40,13 @@ public final class ExplosionByPlayer extends Explosion
 		this.affectedBlockPositions.addAll(this.getPositions());
 		float size = this.explosionSize;
 		this.explosionSize *= 2F;
-		int i0 = MathHelper.floor_double(this.explosionX - this.explosionSize - 1D);
-		int i1 = MathHelper.floor_double(this.explosionX + this.explosionSize + 1D);
-		int j0 = MathHelper.floor_double(this.explosionY - this.explosionSize - 1D);
-		int j1 = MathHelper.floor_double(this.explosionY + this.explosionSize + 1D);
-		int k0 = MathHelper.floor_double(this.explosionZ - this.explosionSize - 1D);
-		int k1 = MathHelper.floor_double(this.explosionZ + this.explosionSize + 1D);
-		List<Entity> entities = this.world.getEntitiesWithinAABBExcludingEntity(this.exploder, AxisAlignedBB.getBoundingBox(i0, j0, k0, i1, j1, k1));
+		int minX = MathHelper.floor_double(this.explosionX - this.explosionSize - 1D);
+		int maxX = MathHelper.floor_double(this.explosionX + this.explosionSize + 1D);
+		int minY = MathHelper.floor_double(this.explosionY - this.explosionSize - 1D);
+		int maxY = MathHelper.floor_double(this.explosionY + this.explosionSize + 1D);
+		int minZ = MathHelper.floor_double(this.explosionZ - this.explosionSize - 1D);
+		int maxZ = MathHelper.floor_double(this.explosionZ + this.explosionSize + 1D);
+		List<Entity> entities = this.world.getEntitiesWithinAABBExcludingEntity(this.exploder, AxisAlignedBB.getBoundingBox(minX, minY, minZ, maxX, maxY, maxZ));
 		Vec3 vec3 = Vec3.createVectorHelper(this.explosionX, this.explosionY, this.explosionZ);
 
 		for (int i = 0; i < entities.size(); ++i)
@@ -56,27 +56,29 @@ public final class ExplosionByPlayer extends Explosion
 
 			if (distance <= 1D)
 			{
-				double d0 = entity.posX - this.explosionX;
-				double d1 = entity.posY + entity.getEyeHeight() - this.explosionY;
-				double d2 = entity.posZ - this.explosionZ;
-				double d3 = MathHelper.sqrt_double(d0 * d0 + d1 * d1 + d2 * d2);
+				double distanceX = entity.posX - this.explosionX;
+				double distanceY = entity.posY + entity.getEyeHeight() - this.explosionY;
+				double distanceZ = entity.posZ - this.explosionZ;
+				double distanceSq = MathHelper.sqrt_double(distanceX * distanceX + distanceY * distanceY + distanceZ * distanceZ);
 
-				if (d3 != 0D)
+				if (distanceSq != 0D)
 				{
-					d0 /= d3;
-					d1 /= d3;
-					d2 /= d3;
+					if (EventUtils.cantDamage(this.player, entity))
+						continue;
+
+					distanceX /= distanceSq;
+					distanceY /= distanceSq;
+					distanceZ /= distanceSq;
 					double d4 = this.world.getBlockDensity(vec3, entity.boundingBox);
 					double d5 = (1D - distance) * d4;
-					if (!EventUtils.cantDamage(this.player, entity))
-						entity.attackEntityFrom(DamageSource.setExplosionSource(this), (int) ((d5 * d5 + d5) / 2D * 8D * this.explosionSize + 1D));
+					entity.attackEntityFrom(DamageSource.setExplosionSource(this), (int) ((d5 * d5 + d5) / 2D * 8D * this.explosionSize + 1D));
 					double d6 = EnchantmentProtection.func_92092_a(entity, d5);
-					entity.motionX += d0 * d6;
-					entity.motionY += d1 * d6;
-					entity.motionZ += d2 * d6;
+					entity.motionX += distanceX * d6;
+					entity.motionY += distanceY * d6;
+					entity.motionZ += distanceZ * d6;
 
 					if (entity instanceof EntityPlayer)
-						this.field_77288_k.put(entity, Vec3.createVectorHelper(d0 * d5, d1 * d5, d2 * d5));
+						this.field_77288_k.put(entity, Vec3.createVectorHelper(distanceX * d5, distanceY * d5, distanceZ * d5));
 				}
 			}
 		}

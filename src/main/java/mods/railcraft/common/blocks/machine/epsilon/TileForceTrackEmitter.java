@@ -59,6 +59,7 @@ public class TileForceTrackEmitter extends TileMachineBase implements IElectricG
 	{
 		EXTENDED, RETRACTED, EXTENDING, RETRACTING, HALTED;
 
+		@SuppressWarnings("incomplete-switch")
 		private void doAction(TileForceTrackEmitter emitter)
 		{
 			switch (this)
@@ -116,6 +117,7 @@ public class TileForceTrackEmitter extends TileMachineBase implements IElectricG
 		}
 	}
 
+	@SuppressWarnings("incomplete-switch")
 	@Override
 	public void updateEntity()
 	{
