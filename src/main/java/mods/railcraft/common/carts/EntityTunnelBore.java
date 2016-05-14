@@ -808,7 +808,7 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 		// Start of Event Fire
 		BreakEvent breakEvent = new BreakEvent(x, y, z, worldObj, block, meta, PlayerPlugin.getFakePlayer((WorldServer) worldObj, posX, posY, posZ));
 		MinecraftForge.EVENT_BUS.post(breakEvent);
-
+		
 		if (breakEvent.isCanceled())
 			return false;
 		// End of Event Fire */
