@@ -105,7 +105,8 @@ public abstract class CartExplosiveBase extends CartBase implements IExplosiveCa
 		if (Game.isHost(this.getWorld()))
 		{
 			// TODO gamerforEA use ExplosionByPlayer
-			ExplosionByPlayer.createExplosion(this.fake.getPlayer(), this.worldObj, this, this.posX, this.posY, this.posZ, blastRadius, true);
+			ExplosionByPlayer.createExplosion(this.fake.get(), this.worldObj, this, this.posX, this.posY, this.posZ, blastRadius, true);
+
 			this.setDead();
 		}
 	}

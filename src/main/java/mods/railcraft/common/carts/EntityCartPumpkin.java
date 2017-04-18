@@ -127,7 +127,7 @@ public class EntityCartPumpkin extends EntityCartTNTWood
 		if (Game.isHost(this.getWorld()))
 		{
 			// TODO gamerforEA use ExplosionByPlayer
-			ExplosionByPlayer.createExplosion(this.fake.getPlayer(), this.getWorld(), this, this.posX, this.posY, this.posZ, this.getBlastRadius(), true);
+			ExplosionByPlayer.createExplosion(this.fake.get(), this.getWorld(), this, this.posX, this.posY, this.posZ, this.getBlastRadius(), true);
 			this.setDead();
 			this.spawnMob();
 			this.spawnPotion();

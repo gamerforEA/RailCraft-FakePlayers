@@ -11,8 +11,6 @@ package mods.railcraft.common.carts;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.gamerforea.eventhelper.util.EventUtils;
-
 import mods.railcraft.api.carts.CartTools;
 import mods.railcraft.api.tracks.RailTools;
 import mods.railcraft.common.util.misc.Game;
@@ -112,7 +110,7 @@ public abstract class CartMaintenanceBase extends CartContainerBase
 		if (trackStock != null)
 		{
 			// TODO gamerforEA code start
-			if (EventUtils.cantBreak(this.fake.getPlayer(), x, y, z))
+			if (this.fake.cantBreak(x, y, z))
 				return false;
 			// TODO gamerforEA code end
 
@@ -133,7 +131,7 @@ public abstract class CartMaintenanceBase extends CartContainerBase
 	protected int removeOldTrack(int x, int y, int z, Block block)
 	{
 		// TODO gamerforEA code start
-		if (EventUtils.cantBreak(this.fake.getPlayer(), x, y, z))
+		if (this.fake.cantBreak(x, y, z))
 			return this.worldObj.getBlockMetadata(x, y, z);
 		// TODO gamerforEA code end
 

@@ -133,7 +133,7 @@ public abstract class RailcraftTileEntity extends TileEntity implements INetwork
 			this.owner = ((EntityPlayer) entityliving).getGameProfile();
 
 			// TODO gamerforEA code start
-			this.fake.profile = this.owner;
+			this.fake.setProfile(this.owner);
 			// TODO gamerforEA code end
 		}
 	}

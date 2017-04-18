@@ -14,8 +14,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.gamerforea.eventhelper.util.EventUtils;
-
 import mods.railcraft.api.carts.CartTools;
 import mods.railcraft.api.carts.ILinkableCart;
 import mods.railcraft.api.carts.ILinkageManager;
@@ -672,7 +670,7 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 						if (this.worldObj.isSideSolid(i, y, k, ForgeDirection.UP))
 						{
 							// TODO gamerforEA code start
-							if (EventUtils.cantBreak(this.fake.getPlayer(), i, j, k))
+							if (this.fake.cantBreak(i, j, k))
 								return false;
 							// TODO gamerforEA code end
 
@@ -699,7 +697,7 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 	protected boolean placeTrack(int x, int y, int z, EnumTrackMeta meta)
 	{
 		// TODO gamerforEA code start
-		if (EventUtils.cantBreak(this.fake.getPlayer(), x, y, z))
+		if (this.fake.cantBreak(x, y, z))
 			return false;
 		// TODO gamerforEA code end
 
@@ -808,11 +806,11 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 		// Start of Event Fire
 		BreakEvent breakEvent = new BreakEvent(x, y, z, worldObj, block, meta, PlayerPlugin.getFakePlayer((WorldServer) worldObj, posX, posY, posZ));
 		MinecraftForge.EVENT_BUS.post(breakEvent);
-		
+
 		if (breakEvent.isCanceled())
 			return false;
 		// End of Event Fire */
-		if (EventUtils.cantBreak(this.fake.getPlayer(), x, y, z))
+		if (this.fake.cantBreak(x, y, z))
 			return false;
 		// TODO gamerforEA code end
 

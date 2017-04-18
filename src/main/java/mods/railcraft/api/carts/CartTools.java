@@ -39,7 +39,8 @@ public abstract class CartTools
 	 * <p/>
 	 * Will return null if Railcraft is not installed.
 	 *
-	 * @param world The World, may be required in the future
+	 * @param world
+	 *            The World, may be required in the future
 	 * @return an instance of ILinkageManager
 	 */
 	public static ILinkageManager getLinkageManager(World world)
@@ -80,9 +81,9 @@ public abstract class CartTools
 
 			// TODO gamerforEA code start
 			if (cart instanceof CartBase)
-				((CartBase) cart).fake.profile = owner;
+				((CartBase) cart).fake.setProfile(owner);
 			else if (cart instanceof CartContainerBase)
-				((CartContainerBase) cart).fake.profile = owner;
+				((CartContainerBase) cart).fake.setProfile(owner);
 			// TODO gamerforEA code end
 		}
 	}
@@ -130,13 +131,19 @@ public abstract class CartTools
 	 * <p/>
 	 * Generally Forge requires all cart items to extend ItemMinecart.
 	 *
-	 * @param owner The player name that should used as the owner
-	 * @param cart  An ItemStack containing a cart item, will not be changed by
-	 *              the function
-	 * @param world The World object
-	 * @param x     x-Coord
-	 * @param y     y-Coord
-	 * @param z     z-Coord
+	 * @param owner
+	 *            The player name that should used as the owner
+	 * @param cart
+	 *            An ItemStack containing a cart item, will not be changed by
+	 *            the function
+	 * @param world
+	 *            The World object
+	 * @param x
+	 *            x-Coord
+	 * @param y
+	 *            y-Coord
+	 * @param z
+	 *            z-Coord
 	 * @return the cart placed or null if failed
 	 * @see IMinecartItem, ItemMinecart
 	 */
@@ -332,8 +339,8 @@ public abstract class CartTools
 	 * @param i
 	 * @param j
 	 * @param k
-	 * @param sensitivity Controls the size of the search box, ranges from
-	 *                    (-inf, 0.49].
+	 * @param sensitivity
+	 *            Controls the size of the search box, ranges from (-inf, 0.49].
 	 * @return
 	 */
 	public static List<EntityMinecart> getMinecartsAt(World world, int i, int j, int k, float sensitivity)

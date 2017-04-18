@@ -236,7 +236,7 @@ public class EntityCartGift extends EntityCartTNTWood
 		if (Game.isHost(this.getWorld()))
 		{
 			// TODO gamerforEA use ExplosionByPlayer
-			ExplosionByPlayer.createExplosion(this.fake.getPlayer(), this.getWorld(), this, this.posX, this.posY, this.posZ, this.getBlastRadius(), true);
+			ExplosionByPlayer.createExplosion(this.fake.get(), this.getWorld(), this, this.posX, this.posY, this.posZ, this.getBlastRadius(), true);
 			this.setDead();
 
 			if (this.rand.nextInt(100) >= 50)

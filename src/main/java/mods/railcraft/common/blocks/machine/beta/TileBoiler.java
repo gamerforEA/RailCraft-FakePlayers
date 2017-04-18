@@ -193,7 +193,8 @@ public abstract class TileBoiler extends TileMultiBlock implements IFluidHandler
 			if (this.explode)
 			{
 				// TODO gamerforEA use ExplosionByPlayer
-				ExplosionByPlayer.createExplosion(this.fake.getPlayer(), this.getWorld(), null, this.xCoord, this.yCoord, this.zCoord, 5f + 0.1f * this.getNumTanks(), true);
+				ExplosionByPlayer.createExplosion(this.fake.get(), this.getWorld(), null, this.xCoord, this.yCoord, this.zCoord, 5f + 0.1f * this.getNumTanks(), true);
+
 				this.explode = false;
 				return;
 			}

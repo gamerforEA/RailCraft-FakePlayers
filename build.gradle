@@ -35,7 +35,7 @@ minecraft {
 }
 
 dependencies {
-	compile name: 'EventHelper-1.6-dev'
+	compile name: 'EventHelper-1.7-dev'
 	compile name: archivesBaseName + '-' + version + '-dev'
 }
 

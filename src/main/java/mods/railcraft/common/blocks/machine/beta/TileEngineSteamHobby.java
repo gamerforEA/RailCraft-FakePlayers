@@ -129,7 +129,8 @@ public class TileEngineSteamHobby extends TileEngineSteam implements IInventory,
 			if (this.explode)
 			{
 				// TODO gamerforEA use ExplosionByPlayer
-				ExplosionByPlayer.createExplosion(this.fake.getPlayer(), this.getWorld(), null, this.xCoord, this.yCoord, this.zCoord, 2, true);
+				ExplosionByPlayer.createExplosion(this.fake.get(), this.getWorld(), null, this.xCoord, this.yCoord, this.zCoord, 2, true);
+
 				this.explode = false;
 			}
 	}

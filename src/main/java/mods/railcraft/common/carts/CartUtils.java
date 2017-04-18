@@ -51,13 +51,19 @@ public class CartUtils
 	 * <p/>
 	 * Generally Forge requires all cart items to extend ItemMinecart.
 	 *
-	 * @param owner The player name that should used as the owner
-	 * @param cart  An ItemStack containing a cart item, will not be changed by
-	 *              the function
-	 * @param world The World object
-	 * @param x     x-Coord
-	 * @param y     y-Coord
-	 * @param z     z-Coord
+	 * @param owner
+	 *            The player name that should used as the owner
+	 * @param cart
+	 *            An ItemStack containing a cart item, will not be changed by
+	 *            the function
+	 * @param world
+	 *            The World object
+	 * @param x
+	 *            x-Coord
+	 * @param y
+	 *            y-Coord
+	 * @param z
+	 *            z-Coord
 	 * @return the cart placed or null if failed
 	 * @see IMinecartItem , ItemMinecart
 	 */
@@ -93,8 +99,10 @@ public class CartUtils
 	/**
 	 * Will return true if the cart matches the provided filter item.
 	 *
-	 * @param stack the Filter
-	 * @param cart  the Cart
+	 * @param stack
+	 *            the Filter
+	 * @param cart
+	 *            the Cart
 	 * @return true if the item matches the cart
 	 * @see IMinecart
 	 */
@@ -126,7 +134,7 @@ public class CartUtils
 
 		// TODO gamerforEA code replace, old code: cart.worldObj.newExplosion(cart, cart.posX, cart.posY, cart.posZ, 3F, true, true);
 		if (cart instanceof CartBase)
-			ExplosionByPlayer.newExplosion(((CartBase) cart).fake.getPlayer(), cart.worldObj, cart, cart.posX, cart.posY, cart.posZ, 3F, true, true);
+			ExplosionByPlayer.newExplosion(((CartBase) cart).fake.get(), cart.worldObj, cart, cart.posX, cart.posY, cart.posZ, 3F, true, true);
 		else
 			ExplosionByPlayer.newExplosion(null, cart.worldObj, cart, cart.posX, cart.posY, cart.posZ, 3F, true, true);
 		// TODO gamerforEA code end

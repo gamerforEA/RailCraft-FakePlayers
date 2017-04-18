@@ -12,8 +12,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-import com.gamerforea.eventhelper.util.EventUtils;
-
 import mods.railcraft.api.electricity.IElectricGrid;
 import mods.railcraft.api.tracks.ITrackInstance;
 import mods.railcraft.api.tracks.ITrackLockdown;
@@ -57,7 +55,11 @@ public class TileForceTrackEmitter extends TileMachineBase implements IElectricG
 
 	private static enum State
 	{
-		EXTENDED, RETRACTED, EXTENDING, RETRACTING, HALTED;
+		EXTENDED,
+		RETRACTED,
+		EXTENDING,
+		RETRACTING,
+		HALTED;
 
 		@SuppressWarnings("incomplete-switch")
 		private void doAction(TileForceTrackEmitter emitter)
@@ -197,7 +199,7 @@ public class TileForceTrackEmitter extends TileMachineBase implements IElectricG
 		if (WorldPlugin.blockIsAir(this.worldObj, x, y, z, block))
 		{
 			// TODO gamerforEA code start
-			if (EventUtils.cantBreak(this.fake.getPlayer(), x, y, z))
+			if (this.fake.cantBreak(x, y, z))
 				return false;
 			// TODO gamerforEA code end
 
@@ -263,7 +265,7 @@ public class TileForceTrackEmitter extends TileMachineBase implements IElectricG
 		if (WorldPlugin.blockExists(this.worldObj, x, y, z) && TrackTools.isTrackAt(this.worldObj, x, y, z, EnumTrack.FORCE))
 		{
 			// TODO gamerforEA code start
-			if (EventUtils.cantBreak(this.fake.getPlayer(), x, y, z))
+			if (this.fake.cantBreak(x, y, z))
 				return;
 			// TODO gamerforEA code end
 

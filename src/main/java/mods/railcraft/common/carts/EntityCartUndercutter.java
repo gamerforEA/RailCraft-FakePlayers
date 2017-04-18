@@ -12,8 +12,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.gamerforea.eventhelper.util.EventUtils;
-
 import mods.railcraft.api.carts.CartTools;
 import mods.railcraft.common.blocks.aesthetics.post.ItemPost;
 import mods.railcraft.common.blocks.tracks.EnumTrackMeta;
@@ -190,7 +188,7 @@ public class EntityCartUndercutter extends CartMaintenancePatternBase
 		if (this.safeToReplace(x, y, z))
 		{
 			// TODO gamerforEA code start
-			if (EventUtils.cantBreak(this.fake.getPlayer(), x, y, z))
+			if (this.fake.cantBreak(x, y, z))
 				return;
 			// TODO gamerforEA code end
 
