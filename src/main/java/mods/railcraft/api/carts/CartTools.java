@@ -7,15 +7,11 @@
  */
 package mods.railcraft.api.carts;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
 import com.mojang.authlib.GameProfile;
-
 import mods.railcraft.api.core.items.IMinecartItem;
 import mods.railcraft.common.carts.CartBase;
 import mods.railcraft.common.carts.CartContainerBase;
+import mods.railcraft.common.carts.EntityCartFurnace;
 import net.minecraft.block.BlockRailBase;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.player.EntityPlayer;
@@ -28,6 +24,10 @@ import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.FakePlayerFactory;
 import net.minecraftforge.common.util.ForgeDirection;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 public abstract class CartTools
 {
 	private static final GameProfile railcraftProfile = new GameProfile(UUID.nameUUIDFromBytes("[Railcraft]".getBytes()), "[Railcraft]");
@@ -39,8 +39,7 @@ public abstract class CartTools
 	 * <p/>
 	 * Will return null if Railcraft is not installed.
 	 *
-	 * @param world
-	 *            The World, may be required in the future
+	 * @param world The World, may be required in the future
 	 * @return an instance of ILinkageManager
 	 */
 	public static ILinkageManager getLinkageManager(World world)
@@ -84,6 +83,8 @@ public abstract class CartTools
 				((CartBase) cart).fake.setProfile(owner);
 			else if (cart instanceof CartContainerBase)
 				((CartContainerBase) cart).fake.setProfile(owner);
+			else if (cart instanceof EntityCartFurnace)
+				((EntityCartFurnace) cart).fake.setProfile(owner);
 			// TODO gamerforEA code end
 		}
 	}
@@ -131,19 +132,13 @@ public abstract class CartTools
 	 * <p/>
 	 * Generally Forge requires all cart items to extend ItemMinecart.
 	 *
-	 * @param owner
-	 *            The player name that should used as the owner
-	 * @param cart
-	 *            An ItemStack containing a cart item, will not be changed by
-	 *            the function
-	 * @param world
-	 *            The World object
-	 * @param x
-	 *            x-Coord
-	 * @param y
-	 *            y-Coord
-	 * @param z
-	 *            z-Coord
+	 * @param owner The player name that should used as the owner
+	 * @param cart  An ItemStack containing a cart item, will not be changed by
+	 *              the function
+	 * @param world The World object
+	 * @param x     x-Coord
+	 * @param y     y-Coord
+	 * @param z     z-Coord
 	 * @return the cart placed or null if failed
 	 * @see IMinecartItem, ItemMinecart
 	 */
@@ -214,14 +209,18 @@ public abstract class CartTools
 	{
 		List<EntityMinecart> list = new ArrayList<EntityMinecart>();
 		for (int side = 0; side < 6; side++)
+		{
 			list.addAll(getMinecartsOnSide(world, i, j, k, sensitivity, ForgeDirection.getOrientation(side)));
+		}
 
 		if (type == null)
 			return !list.isEmpty();
 		else
 			for (EntityMinecart cart : list)
+			{
 				if (subclass && type.isInstance(cart) || cart.getClass() == type)
 					return true;
+			}
 		return false;
 	}
 
@@ -238,8 +237,10 @@ public abstract class CartTools
 			return !list.isEmpty();
 		else
 			for (EntityMinecart cart : list)
+			{
 				if (subclass && type.isInstance(cart) || cart.getClass() == type)
 					return true;
+			}
 		return false;
 	}
 
@@ -247,7 +248,9 @@ public abstract class CartTools
 	{
 		List<EntityMinecart> carts = new ArrayList<EntityMinecart>();
 		for (int side = 0; side < 6; side++)
+		{
 			carts.addAll(getMinecartsOnSide(world, i, j, k, sensitivity, ForgeDirection.getOrientation(side)));
+		}
 
 		return carts;
 	}
@@ -257,11 +260,15 @@ public abstract class CartTools
 		List<EntityMinecart> list = new ArrayList<EntityMinecart>();
 		List<EntityMinecart> carts = new ArrayList<EntityMinecart>();
 		for (int side = 0; side < 6; side++)
+		{
 			list.addAll(getMinecartsOnSide(world, i, j, k, sensitivity, ForgeDirection.getOrientation(side)));
+		}
 
 		for (EntityMinecart cart : list)
+		{
 			if (subclass && type.isInstance(cart) || cart.getClass() == type)
 				carts.add(cart);
+		}
 		return carts;
 	}
 
@@ -317,7 +324,9 @@ public abstract class CartTools
 	public static EntityMinecart getMinecartOnSide(World world, int i, int j, int k, float sensitivity, ForgeDirection side)
 	{
 		for (EntityMinecart cart : getMinecartsOnSide(world, i, j, k, sensitivity, side))
+		{
 			return cart;
+		}
 		return null;
 	}
 
@@ -329,8 +338,10 @@ public abstract class CartTools
 	public static <T extends EntityMinecart> T getMinecartOnSide(World world, int i, int j, int k, float sensitivity, ForgeDirection side, Class<T> type, boolean subclass)
 	{
 		for (EntityMinecart cart : getMinecartsOnSide(world, i, j, k, sensitivity, side))
+		{
 			if (type == null || subclass && type.isInstance(cart) || cart.getClass() == type)
 				return (T) cart;
+		}
 		return null;
 	}
 
@@ -339,8 +350,7 @@ public abstract class CartTools
 	 * @param i
 	 * @param j
 	 * @param k
-	 * @param sensitivity
-	 *            Controls the size of the search box, ranges from (-inf, 0.49].
+	 * @param sensitivity Controls the size of the search box, ranges from (-inf, 0.49].
 	 * @return
 	 */
 	public static List<EntityMinecart> getMinecartsAt(World world, int i, int j, int k, float sensitivity)

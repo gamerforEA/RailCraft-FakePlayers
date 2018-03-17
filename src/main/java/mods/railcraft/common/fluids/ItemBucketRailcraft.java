@@ -9,7 +9,6 @@
 package mods.railcraft.common.fluids;
 
 import com.gamerforea.eventhelper.util.EventUtils;
-
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import mods.railcraft.common.plugins.forge.CreativePlugin;

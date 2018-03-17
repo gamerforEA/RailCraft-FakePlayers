@@ -8,21 +8,13 @@
  */
 package mods.railcraft.common.blocks.machine.epsilon;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-
 import mods.railcraft.api.electricity.IElectricGrid;
 import mods.railcraft.api.tracks.ITrackInstance;
 import mods.railcraft.api.tracks.ITrackLockdown;
 import mods.railcraft.common.blocks.RailcraftBlocks;
 import mods.railcraft.common.blocks.machine.IEnumMachine;
 import mods.railcraft.common.blocks.machine.TileMachineBase;
-import mods.railcraft.common.blocks.tracks.EnumTrack;
-import mods.railcraft.common.blocks.tracks.EnumTrackMeta;
-import mods.railcraft.common.blocks.tracks.TileTrack;
-import mods.railcraft.common.blocks.tracks.TrackForce;
-import mods.railcraft.common.blocks.tracks.TrackTools;
+import mods.railcraft.common.blocks.tracks.*;
 import mods.railcraft.common.plugins.forge.PowerPlugin;
 import mods.railcraft.common.plugins.forge.WorldPlugin;
 import mods.railcraft.common.util.effects.EffectManager;
@@ -36,8 +28,11 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.IIcon;
 import net.minecraftforge.common.util.ForgeDirection;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+
 /**
- *
  * @author CovertJaguar <http://www.railcraft.info>
  */
 public class TileForceTrackEmitter extends TileMachineBase implements IElectricGrid
@@ -53,7 +48,7 @@ public class TileForceTrackEmitter extends TileMachineBase implements IElectricG
 	private int numTracks;
 	private State state = State.RETRACTED;
 
-	private static enum State
+	private enum State
 	{
 		EXTENDED,
 		RETRACTED,

@@ -8,13 +8,7 @@
  */
 package mods.railcraft.common.blocks.machine.beta;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import com.gamerforea.railcraft.ExplosionByPlayer;
-
 import mods.railcraft.common.blocks.machine.MultiBlockPattern;
 import mods.railcraft.common.blocks.machine.TileMultiBlock;
 import mods.railcraft.common.fluids.FluidHelper;
@@ -39,6 +33,11 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidHandler;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 /**
  * @author CovertJaguar <http://www.railcraft.info>
  */
@@ -46,13 +45,13 @@ public abstract class TileBoiler extends TileMultiBlock implements IFluidHandler
 {
 	public static final int TANK_WATER = 0;
 	public static final int TANK_STEAM = 1;
-	public final static int TRANSFER_RATE = FluidHelper.BUCKET_VOLUME;
-	public final static int TICKS_LOW = 16;
-	public final static int TICKS_HIGH = 8;
-	public final static int STEAM_LOW = 16;
-	public final static int STEAM_HIGH = 32;
-	public final static float HEAT_LOW = Steam.MAX_HEAT_LOW;
-	public final static float HEAT_HIGH = Steam.MAX_HEAT_HIGH;
+	public static final int TRANSFER_RATE = FluidHelper.BUCKET_VOLUME;
+	public static final int TICKS_LOW = 16;
+	public static final int TICKS_HIGH = 8;
+	public static final int STEAM_LOW = 16;
+	public static final int STEAM_HIGH = 32;
+	public static final float HEAT_LOW = Steam.MAX_HEAT_LOW;
+	public static final float HEAT_HIGH = Steam.MAX_HEAT_HIGH;
 	protected static final List<MultiBlockPattern> patterns = new ArrayList<MultiBlockPattern>();
 	private static final Set<Integer> boilerBlocks = new HashSet<Integer>();
 	private static final Set<Integer> fireboxBlocks = new HashSet<Integer>();
@@ -105,27 +104,41 @@ public abstract class TileBoiler extends TileMultiBlock implements IFluidHandler
 		char[][][] map = new char[tankHeight + 3][width + 2][width + 2];
 
 		for (int x = 0; x < width + 2; x++)
+		{
 			for (int z = 0; z < width + 2; z++)
+			{
 				map[0][x][z] = 'O';
+			}
+		}
 
 		for (int x = 0; x < width + 2; x++)
+		{
 			for (int z = 0; z < width + 2; z++)
 			{
 				char m = x == 0 || z == 0 || x == width + 1 || z == width + 1 ? 'O' : 'F';
 				map[1][x][z] = m;
 			}
+		}
 
 		for (int y = 2; y < tankHeight + 2; y++)
+		{
 			for (int x = 0; x < width + 2; x++)
+			{
 				for (int z = 0; z < width + 2; z++)
 				{
 					char m = x == 0 || z == 0 || x == width + 1 || z == width + 1 ? 'O' : tank;
 					map[y][x][z] = m;
 				}
+			}
+		}
 
 		for (int x = 0; x < width + 2; x++)
+		{
 			for (int z = 0; z < width + 2; z++)
+			{
 				map[tankHeight + 2][x][z] = 'O';
+			}
+		}
 
 		return new BoilerPattern(map, width * width * tankHeight, ticks, heat, capacity, offset, offset);
 	}

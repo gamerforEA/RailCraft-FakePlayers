@@ -9,7 +9,6 @@
 package mods.railcraft.common.blocks.machine.beta;
 
 import com.gamerforea.railcraft.ExplosionByPlayer;
-
 import mods.railcraft.common.blocks.RailcraftTileEntity;
 import mods.railcraft.common.blocks.machine.IEnumMachine;
 import mods.railcraft.common.fluids.FluidHelper;
@@ -42,7 +41,8 @@ import net.minecraftforge.fluids.FluidStack;
 /**
  * @author CovertJaguar <http://www.railcraft.info>
  */
-public class TileEngineSteamHobby extends TileEngineSteam implements IInventory, ISidedInventory, INeedsFuel, ITemperature
+public class TileEngineSteamHobby extends TileEngineSteam
+		implements IInventory, ISidedInventory, INeedsFuel, ITemperature
 {
 	public static final byte SLOT_FUEL = 0;
 	public static final byte SLOT_LIQUID_INPUT = 1;

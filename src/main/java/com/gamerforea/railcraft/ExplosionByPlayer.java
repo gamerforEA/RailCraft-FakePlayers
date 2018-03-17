@@ -1,13 +1,7 @@
 package com.gamerforea.railcraft;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import com.gamerforea.eventhelper.util.EventUtils;
 import com.google.common.collect.Maps;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.enchantment.EnchantmentProtection;
@@ -20,6 +14,11 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.ChunkPosition;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public final class ExplosionByPlayer extends Explosion
 {
@@ -90,8 +89,11 @@ public final class ExplosionByPlayer extends Explosion
 	{
 		Set<ChunkPosition> set = new HashSet();
 		for (int i = 0; i < 16; ++i)
+		{
 			for (int j = 0; j < 16; ++j)
+			{
 				for (int k = 0; k < 16; ++k)
+				{
 					if (i == 0 || i == 15 || j == 0 || j == 15 || k == 0 || k == 15)
 					{
 						double d0 = i / 30F - 1F;
@@ -128,6 +130,9 @@ public final class ExplosionByPlayer extends Explosion
 							dZ += d2 * f;
 						}
 					}
+				}
+			}
+		}
 		return set;
 	}
 

@@ -8,11 +8,7 @@
  */
 package mods.railcraft.common.carts;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.gamerforea.railcraft.ExplosionByPlayer;
-
 import mods.railcraft.common.core.RailcraftConfig;
 import mods.railcraft.common.items.ItemCrowbar;
 import mods.railcraft.common.items.RailcraftToolItems;
@@ -24,6 +20,9 @@ import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionHelper;
 import net.minecraft.world.World;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class EntityCartGift extends EntityCartTNTWood
 {

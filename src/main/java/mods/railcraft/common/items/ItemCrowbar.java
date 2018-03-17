@@ -8,34 +8,19 @@
  */
 package mods.railcraft.common.items;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
+import buildcraft.api.tools.IToolWrench;
 import com.gamerforea.eventhelper.util.EventUtils;
 import com.gamerforea.railcraft.ModUtils;
-
-import buildcraft.api.tools.IToolWrench;
 import ic2.api.item.IBoxable;
 import mods.railcraft.api.core.items.IToolCrowbar;
 import mods.railcraft.common.blocks.tracks.BlockTrackElevator;
 import mods.railcraft.common.blocks.tracks.TrackTools;
 import mods.railcraft.common.core.RailcraftConfig;
 import mods.railcraft.common.items.enchantment.RailcraftEnchantments;
-import mods.railcraft.common.plugins.forge.CraftingPlugin;
-import mods.railcraft.common.plugins.forge.CreativePlugin;
-import mods.railcraft.common.plugins.forge.LocalizationPlugin;
-import mods.railcraft.common.plugins.forge.LootPlugin;
-import mods.railcraft.common.plugins.forge.RailcraftRegistry;
-import mods.railcraft.common.plugins.forge.WorldPlugin;
+import mods.railcraft.common.plugins.forge.*;
 import mods.railcraft.common.util.inventory.InvTools;
 import mods.railcraft.common.util.misc.MiscTools;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockButton;
-import net.minecraft.block.BlockChest;
-import net.minecraft.block.BlockLever;
-import net.minecraft.block.BlockRailBase;
+import net.minecraft.block.*;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.EntityLivingBase;
@@ -48,6 +33,11 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemTool;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class ItemCrowbar extends ItemTool implements IToolCrowbar, IBoxable, IToolWrench
 {
@@ -86,7 +76,7 @@ public class ItemCrowbar extends ItemTool implements IToolCrowbar, IBoxable, ITo
 
 	protected ItemCrowbar(ToolMaterial material)
 	{
-		super(3, material, new HashSet<Block>(Arrays.asList(new Block[] { Blocks.rail, Blocks.detector_rail, Blocks.golden_rail, Blocks.activator_rail })));
+		super(3, material, new HashSet<Block>(Arrays.asList(Blocks.rail, Blocks.detector_rail, Blocks.golden_rail, Blocks.activator_rail)));
 		this.setCreativeTab(CreativePlugin.RAILCRAFT_TAB);
 		this.shiftRotations.add(BlockLever.class);
 		this.shiftRotations.add(BlockButton.class);
@@ -119,16 +109,20 @@ public class ItemCrowbar extends ItemTool implements IToolCrowbar, IBoxable, ITo
 	private boolean isShiftRotation(Class<? extends Block> cls)
 	{
 		for (Class<? extends Block> shift : this.shiftRotations)
+		{
 			if (shift.isAssignableFrom(cls))
 				return true;
+		}
 		return false;
 	}
 
 	private boolean isBannedRotation(Class<? extends Block> cls)
 	{
 		for (Class<? extends Block> banned : this.bannedRotations)
+		{
 			if (banned.isAssignableFrom(cls))
 				return true;
+		}
 		return false;
 	}
 

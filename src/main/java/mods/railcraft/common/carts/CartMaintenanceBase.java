@@ -8,9 +8,6 @@
  */
 package mods.railcraft.common.carts;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import mods.railcraft.api.carts.CartTools;
 import mods.railcraft.api.tracks.RailTools;
 import mods.railcraft.common.util.misc.Game;
@@ -18,6 +15,9 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockRailBase;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author CovertJaguar <http://www.railcraft.info>
@@ -138,7 +138,9 @@ public abstract class CartMaintenanceBase extends CartContainerBase
 		List<ItemStack> drops = block.getDrops(this.worldObj, x, y, z, 0, 0);
 
 		for (ItemStack stack : drops)
+		{
 			CartTools.offerOrDropItem(this, stack);
+		}
 		int meta = this.worldObj.getBlockMetadata(x, y, z);
 		if (((BlockRailBase) block).isPowered())
 			meta = meta & 7;

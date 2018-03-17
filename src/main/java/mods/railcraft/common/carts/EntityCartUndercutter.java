@@ -8,10 +8,6 @@
  */
 package mods.railcraft.common.carts;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import mods.railcraft.api.carts.CartTools;
 import mods.railcraft.common.blocks.aesthetics.post.ItemPost;
 import mods.railcraft.common.blocks.tracks.EnumTrackMeta;
@@ -31,6 +27,10 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.oredict.OreDictionary;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class EntityCartUndercutter extends CartMaintenancePatternBase
 {
@@ -61,9 +61,7 @@ public class EntityCartUndercutter extends CartMaintenancePatternBase
 			return false;
 		if (block.isOpaqueCube())
 			return true;
-		if (stack.getItem() instanceof ItemPost)
-			return true;
-		return false;
+		return stack.getItem() instanceof ItemPost;
 	}
 
 	public EntityCartUndercutter(World world)
@@ -203,7 +201,9 @@ public class EntityCartUndercutter extends CartMaintenancePatternBase
 				SoundHelper.playBlockSound(this.worldObj, x, y, z, stockBlock.stepSound.func_150496_b(), (1f + 1.0F) / 2.0F, 1f * 0.8F, stockBlock, newMeta);
 				this.decrStackSize(slotStock, 1);
 				for (ItemStack stack : drops)
+				{
 					CartTools.offerOrDropItem(this, stack);
+				}
 				this.blink();
 			}
 		}

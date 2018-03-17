@@ -8,12 +8,6 @@
  */
 package mods.railcraft.common.carts;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import mods.railcraft.api.carts.CartTools;
 import mods.railcraft.api.carts.ILinkableCart;
 import mods.railcraft.api.carts.ILinkageManager;
@@ -53,6 +47,8 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
+import java.util.*;
+
 public class EntityTunnelBore extends CartContainerBase implements IInventory, ILinkableCart
 {
 	public static final float SPEED = 0.03F;
@@ -76,7 +72,9 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 	static
 	{
 		for (Block block : mineable)
+		{
 			addMineableBlock(block);
+		}
 		replaceableBlocks.addAll(Arrays.asList(replaceable));
 	}
 
@@ -176,8 +174,7 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 				mappingExists = true;
 			}
 
-			if (mappingExists)
-				return false;
+			return !mappingExists;
 		}
 
 		return true;
@@ -340,7 +337,9 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 		super.onUpdate();
 
 		for (Entity part : this.partArray)
+		{
 			part.onUpdate();
+		}
 
 		if (Game.isHost(this.worldObj))
 		{
@@ -463,11 +462,13 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 				double size = 0.8;
 				List entities = this.worldObj.getEntitiesWithinAABBExcludingEntity(this, AxisAlignedBB.getBoundingBox(i - size, this.posY, k - size, i + size, this.posY + 2, k + size));
 				for (Object e : entities)
+				{
 					if (e instanceof EntityLivingBase)
 					{
 						EntityLivingBase ent = (EntityLivingBase) e;
 						ent.attackEntityFrom(RailcraftDamageSource.BORE, 2);
 					}
+				}
 			}
 
 			this.setMoving(this.hasFuel() && this.getDelay() == 0);
@@ -667,6 +668,7 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 				if (stack != null && BallastRegistry.isItemBallast(stack))
 				{
 					for (int y = j; y > j - MAX_FILL_DEPTH; y--)
+					{
 						if (this.worldObj.isSideSolid(i, y, k, ForgeDirection.UP))
 						{
 							// TODO gamerforEA code start
@@ -678,6 +680,7 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 							this.worldObj.setBlock(i, j, k, InvTools.getBlockFromStack(stack), stack.getItemDamage(), 3);
 							return true;
 						}
+					}
 					return false;
 				}
 			}
@@ -741,13 +744,17 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 		}
 
 		for (int jj = j; jj < j + 4; jj++)
+		{
 			for (int ii = xStart; ii <= xEnd; ii++)
+			{
 				for (int kk = zStart; kk <= zEnd; kk++)
 				{
 					Block block = this.worldObj.getBlock(ii, jj, kk);
 					if (block == Blocks.lava || block == Blocks.flowing_lava)
 						return true;
 				}
+			}
+		}
 
 		return false;
 	}
@@ -758,14 +765,18 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 		int ii = i;
 		int kk = k;
 		for (int jj = j; jj < j + 3; jj++)
+		{
 			clear = clear && this.mineBlock(ii, jj, kk, dir);
+		}
 
 		if (dir == EnumTrackMeta.NORTH_SOUTH)
 			ii--;
 		else
 			kk--;
 		for (int jj = j; jj < j + 3; jj++)
+		{
 			clear = clear && this.mineBlock(ii, jj, kk, dir);
+		}
 
 		ii = i;
 		kk = k;
@@ -774,7 +785,9 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 		else
 			kk++;
 		for (int jj = j; jj < j + 3; jj++)
+		{
 			clear = clear && this.mineBlock(ii, jj, kk, dir);
+		}
 		return clear;
 	}
 
@@ -866,14 +879,18 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 		int ii = i;
 		int kk = k;
 		for (int jj = j; jj < j + 3; jj++)
+		{
 			hardness += this.getBlockHardness(ii, jj, kk, dir);
+		}
 
 		if (dir == EnumTrackMeta.NORTH_SOUTH)
 			ii--;
 		else
 			kk--;
 		for (int jj = j; jj < j + 3; jj++)
+		{
 			hardness += this.getBlockHardness(ii, jj, kk, dir);
+		}
 
 		ii = i;
 		kk = k;
@@ -882,7 +899,9 @@ public class EntityTunnelBore extends CartContainerBase implements IInventory, I
 		else
 			kk++;
 		for (int jj = j; jj < j + 3; jj++)
+		{
 			hardness += this.getBlockHardness(ii, jj, kk, dir);
+		}
 
 		hardness *= HARDNESS_MULTIPLER;
 

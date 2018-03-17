@@ -8,10 +8,7 @@
  */
 package mods.railcraft.common.items.firestone;
 
-import java.util.List;
-
 import com.gamerforea.eventhelper.util.EventUtils;
-
 import mods.railcraft.common.core.RailcraftConfig;
 import mods.railcraft.common.gui.tooltips.ToolTip;
 import mods.railcraft.common.plugins.forge.RailcraftRegistry;
@@ -29,8 +26,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.world.World;
 
+import java.util.List;
+
 /**
- *
  * @author CovertJaguar <http://www.railcraft.info/>
  */
 public class ItemFirestoneRefined extends ItemFirestoneBase
@@ -185,13 +183,10 @@ public class ItemFirestoneRefined extends ItemFirestoneBase
 	 * Returning null here will not kill the EntityItem and will leave it to
 	 * function normally. Called when the item it placed in a world.
 	 *
-	 * @param world
-	 *            The world object
-	 * @param location
-	 *            The EntityItem object, useful for getting the position of the
-	 *            entity
-	 * @param stack
-	 *            The current item stack
+	 * @param world    The world object
+	 * @param location The EntityItem object, useful for getting the position of the
+	 *                 entity
+	 * @param stack    The current item stack
 	 * @return A new Entity object to spawn or null
 	 */
 	@Override

@@ -8,10 +8,7 @@
  */
 package mods.railcraft.common.fluids;
 
-import java.util.Random;
-
 import com.gamerforea.railcraft.ExplosionByPlayer;
-
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -28,8 +25,9 @@ import net.minecraftforge.fluids.BlockFluidClassic;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
 
+import java.util.Random;
+
 /**
- *
  * @author CovertJaguar <http://www.railcraft.info/>
  */
 public class BlockRailcraftFluid extends BlockFluidClassic

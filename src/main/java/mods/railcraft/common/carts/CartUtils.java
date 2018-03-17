@@ -8,15 +8,8 @@
  */
 package mods.railcraft.common.carts;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
 import com.gamerforea.railcraft.ExplosionByPlayer;
 import com.mojang.authlib.GameProfile;
-
 import mods.railcraft.api.carts.CartTools;
 import mods.railcraft.api.carts.IMinecart;
 import mods.railcraft.api.core.items.IMinecartItem;
@@ -35,6 +28,8 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 
+import java.util.*;
+
 /**
  * @author CovertJaguar <http://www.railcraft.info>
  */
@@ -51,19 +46,13 @@ public class CartUtils
 	 * <p/>
 	 * Generally Forge requires all cart items to extend ItemMinecart.
 	 *
-	 * @param owner
-	 *            The player name that should used as the owner
-	 * @param cart
-	 *            An ItemStack containing a cart item, will not be changed by
-	 *            the function
-	 * @param world
-	 *            The World object
-	 * @param x
-	 *            x-Coord
-	 * @param y
-	 *            y-Coord
-	 * @param z
-	 *            z-Coord
+	 * @param owner The player name that should used as the owner
+	 * @param cart  An ItemStack containing a cart item, will not be changed by
+	 *              the function
+	 * @param world The World object
+	 * @param x     x-Coord
+	 * @param y     y-Coord
+	 * @param z     z-Coord
 	 * @return the cart placed or null if failed
 	 * @see IMinecartItem , ItemMinecart
 	 */
@@ -99,10 +88,8 @@ public class CartUtils
 	/**
 	 * Will return true if the cart matches the provided filter item.
 	 *
-	 * @param stack
-	 *            the Filter
-	 * @param cart
-	 *            the Cart
+	 * @param stack the Filter
+	 * @param cart  the Cart
 	 * @return true if the item matches the cart
 	 * @see IMinecart
 	 */

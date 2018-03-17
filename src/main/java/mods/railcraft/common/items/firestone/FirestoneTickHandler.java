@@ -8,10 +8,7 @@
  */
 package mods.railcraft.common.items.firestone;
 
-import java.util.Random;
-
 import com.gamerforea.eventhelper.util.EventUtils;
-
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 import cpw.mods.fml.relauncher.Side;
@@ -27,8 +24,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
+import java.util.Random;
+
 /**
- *
  * @author CovertJaguar <http://www.railcraft.info>
  */
 public class FirestoneTickHandler
@@ -60,14 +58,18 @@ public class FirestoneTickHandler
 		if (player.openContainer != player.inventoryContainer)
 			return;
 		for (ItemStack stack : player.inventory.mainInventory)
+		{
 			if (this.shouldBurn(stack))
 			{
 				boolean spawnedFire = false;
 				for (int i = 0; i < stack.stackSize; i++)
+				{
 					spawnedFire |= this.spawnFire(player);
+				}
 				if (spawnedFire && stack.isItemStackDamageable() && stack.getItemDamage() < stack.getMaxDamage() - 1)
 					InvTools.damageItem(stack, 1);
 			}
+		}
 	}
 
 	private boolean spawnFire(EntityPlayer player)

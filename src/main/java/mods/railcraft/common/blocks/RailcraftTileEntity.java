@@ -8,18 +8,10 @@
  */
 package mods.railcraft.common.blocks;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
 import com.gamerforea.eventhelper.fake.FakePlayerContainer;
 import com.gamerforea.eventhelper.fake.FakePlayerContainerTileEntity;
 import com.gamerforea.railcraft.ModUtils;
 import com.mojang.authlib.GameProfile;
-
 import cpw.mods.fml.common.network.internal.FMLProxyPacket;
 import mods.railcraft.api.core.INetworkedObject;
 import mods.railcraft.api.core.IOwnable;
@@ -38,6 +30,13 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 public abstract class RailcraftTileEntity extends TileEntity implements INetworkedObject, IOwnable
 {

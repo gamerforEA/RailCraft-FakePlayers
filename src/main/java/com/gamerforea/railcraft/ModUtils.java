@@ -1,12 +1,11 @@
 package com.gamerforea.railcraft;
 
-import java.util.UUID;
-
 import com.gamerforea.eventhelper.util.FastUtils;
 import com.mojang.authlib.GameProfile;
-
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.FakePlayer;
+
+import java.util.UUID;
 
 public final class ModUtils
 {

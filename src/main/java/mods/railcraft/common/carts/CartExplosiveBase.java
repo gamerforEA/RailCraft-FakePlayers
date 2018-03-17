@@ -8,12 +8,7 @@
  */
 package mods.railcraft.common.carts;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-
 import com.gamerforea.railcraft.ExplosionByPlayer;
-
 import mods.railcraft.api.carts.CartTools;
 import mods.railcraft.api.carts.IExplosiveCart;
 import mods.railcraft.common.gui.EnumGui;
@@ -30,15 +25,19 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
 import net.minecraft.world.World;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+
 public abstract class CartExplosiveBase extends CartBase implements IExplosiveCart, IGuiReturnHandler
 {
 	private static final byte FUSE_DATA_ID = 25;
 	private static final byte BLAST_DATA_ID = 26;
 	private static final byte PRIMED_DATA_ID = 27;
-	private final static float BLAST_RADIUS_BYTE_MULTIPLIER = 0.5f;
-	private final static float BLAST_RADIUS_MIN = 2;
-	private final static float BLAST_RADIUS_MAX = 6;
-	private final static float BLAST_RADIUS_MAX_BONUS = 5;
+	private static final float BLAST_RADIUS_BYTE_MULTIPLIER = 0.5f;
+	private static final float BLAST_RADIUS_MIN = 2;
+	private static final float BLAST_RADIUS_MAX = 6;
+	private static final float BLAST_RADIUS_MAX_BONUS = 5;
 	public static final short MAX_FUSE = 500;
 	public static final short MIN_FUSE = 0;
 	private boolean isExploding;
