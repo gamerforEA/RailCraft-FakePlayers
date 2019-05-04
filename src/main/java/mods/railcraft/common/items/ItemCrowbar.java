@@ -273,7 +273,9 @@ public class ItemCrowbar extends ItemTool implements IToolCrowbar, IBoxable, ITo
 			// TODO gamerforEA code end
 
 			this.removeAndDrop(world, x, y, z, block);
-			this.checkBlocks(player, world, level, x, y, z); // TODO gamerforEA add EntityPlayer parameter
+
+			// TODO gamerforEA add EntityPlayer parameter
+			this.checkBlocks(player, world, level, x, y, z);
 		}
 	}
 
@@ -313,17 +315,17 @@ public class ItemCrowbar extends ItemTool implements IToolCrowbar, IBoxable, ITo
 	// TODO gamerforEA code start
 	private void removeExtraBlocks(World world, int level, int x, int y, int z, Block block)
 	{
-		this.removeExtraBlocks(ModUtils.getModFake(world), world, level, x, y, z, block);
+		this.removeExtraBlocks(ModUtils.NEXUS_FACTORY.getFake(world), world, level, x, y, z, block);
 	}
 
 	private void checkBlock(World world, int level, int x, int y, int z)
 	{
-		this.checkBlock(ModUtils.getModFake(world), world, level, x, y, z);
+		this.checkBlock(ModUtils.NEXUS_FACTORY.getFake(world), world, level, x, y, z);
 	}
 
 	private void checkBlocks(World world, int level, int x, int y, int z)
 	{
-		this.checkBlocks(ModUtils.getModFake(world), world, level, x, y, z);
+		this.checkBlocks(ModUtils.NEXUS_FACTORY.getFake(world), world, level, x, y, z);
 	}
 	// TODO gamerforEA code end
 }

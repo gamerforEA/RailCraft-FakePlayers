@@ -8,7 +8,8 @@
  */
 package mods.railcraft.common.fluids;
 
-import com.gamerforea.railcraft.ExplosionByPlayer;
+import com.gamerforea.eventhelper.util.ExplosionByPlayer;
+import com.gamerforea.railcraft.ModUtils;
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -95,7 +96,8 @@ public class BlockRailcraftFluid extends BlockFluidClassic
 		if (this.flammable && world.provider.dimensionId == -1)
 		{
 			// TODO gamerforEA use ExplosionByPlayer
-			ExplosionByPlayer.newExplosion(null, world, null, x, y, z, 4F, true, true);
+			ExplosionByPlayer.newExplosion(ModUtils.NEXUS_FACTORY.getFake(world), world, null, x, y, z, 4F, true, true);
+
 			world.setBlockToAir(x, y, z);
 		}
 	}

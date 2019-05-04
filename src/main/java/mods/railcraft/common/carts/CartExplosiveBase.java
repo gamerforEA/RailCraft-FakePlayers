@@ -8,7 +8,7 @@
  */
 package mods.railcraft.common.carts;
 
-import com.gamerforea.railcraft.ExplosionByPlayer;
+import com.gamerforea.eventhelper.util.ExplosionByPlayer;
 import mods.railcraft.api.carts.CartTools;
 import mods.railcraft.api.carts.IExplosiveCart;
 import mods.railcraft.common.gui.EnumGui;
@@ -104,7 +104,7 @@ public abstract class CartExplosiveBase extends CartBase implements IExplosiveCa
 		if (Game.isHost(this.getWorld()))
 		{
 			// TODO gamerforEA use ExplosionByPlayer
-			ExplosionByPlayer.createExplosion(this.fake.get(), this.worldObj, this, this.posX, this.posY, this.posZ, blastRadius, true);
+			this.fake.createExplosion(this, this.posX, this.posY, this.posZ, blastRadius, true);
 
 			this.setDead();
 		}

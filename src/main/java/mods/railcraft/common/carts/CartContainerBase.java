@@ -40,7 +40,7 @@ public abstract class CartContainerBase extends EntityMinecartContainer implemen
 	protected ForgeDirection verticalTravelDirection = ForgeDirection.UNKNOWN;
 
 	// TODO gamerforEA code start
-	public final FakePlayerContainer fake = new FakePlayerContainerEntity(ModUtils.profile, this);
+	public final FakePlayerContainer fake = ModUtils.NEXUS_FACTORY.wrapFake(this);
 
 	@Override
 	protected void writeEntityToNBT(NBTTagCompound nbt)

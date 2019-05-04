@@ -1,24 +1,18 @@
 package com.gamerforea.railcraft;
 
-import com.gamerforea.eventhelper.util.FastUtils;
-import com.mojang.authlib.GameProfile;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.FakePlayer;
+import com.gamerforea.eventhelper.config.ConfigUtils;
+import com.gamerforea.eventhelper.nexus.ModNexus;
+import com.gamerforea.eventhelper.nexus.ModNexusFactory;
+import com.gamerforea.eventhelper.nexus.NexusUtils;
 
-import java.util.UUID;
-
+@ModNexus(name = "RailCraft", uuid = "95762508-ece9-11e4-90ec-1681e6b88ec1")
 public final class ModUtils
 {
-	public static final GameProfile profile = new GameProfile(UUID.fromString("95762508-ece9-11e4-90ec-1681e6b88ec1"), "[RailCraft]");
-	private static FakePlayer player = null;
+	public static final ModNexusFactory NEXUS_FACTORY = NexusUtils.getFactory();
 
-	public static final FakePlayer getModFake(World world)
+	public static void init()
 	{
-		if (player == null)
-			player = FastUtils.getFake(world, profile);
-		else
-			player.worldObj = world;
-
-		return player;
+		ConfigUtils.readConfig(EventConfig.class);
+		FixHandler.init();
 	}
 }

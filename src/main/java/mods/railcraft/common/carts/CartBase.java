@@ -9,7 +9,6 @@
 package mods.railcraft.common.carts;
 
 import com.gamerforea.eventhelper.fake.FakePlayerContainer;
-import com.gamerforea.eventhelper.fake.FakePlayerContainerEntity;
 import com.gamerforea.railcraft.ModUtils;
 import mods.railcraft.api.carts.IItemCart;
 import net.minecraft.entity.item.EntityMinecart;
@@ -32,7 +31,7 @@ import java.util.List;
 public abstract class CartBase extends EntityMinecart implements IRailcraftCart, IItemCart
 {
 	// TODO gamerforEA code start
-	public final FakePlayerContainer fake = new FakePlayerContainerEntity(ModUtils.profile, this);
+	public final FakePlayerContainer fake = ModUtils.NEXUS_FACTORY.wrapFake(this);
 
 	@Override
 	protected void writeEntityToNBT(NBTTagCompound nbt)

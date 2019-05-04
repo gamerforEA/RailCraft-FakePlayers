@@ -8,7 +8,7 @@
  */
 package mods.railcraft.common.blocks.machine.beta;
 
-import com.gamerforea.railcraft.ExplosionByPlayer;
+import com.gamerforea.eventhelper.util.ExplosionByPlayer;
 import mods.railcraft.common.blocks.RailcraftTileEntity;
 import mods.railcraft.common.blocks.machine.IEnumMachine;
 import mods.railcraft.common.fluids.FluidHelper;
@@ -129,7 +129,7 @@ public class TileEngineSteamHobby extends TileEngineSteam
 			if (this.explode)
 			{
 				// TODO gamerforEA use ExplosionByPlayer
-				ExplosionByPlayer.createExplosion(this.fake.get(), this.getWorld(), null, this.xCoord, this.yCoord, this.zCoord, 2, true);
+				this.fake.createExplosion(null, this.xCoord, this.yCoord, this.zCoord, 2, true);
 
 				this.explode = false;
 			}

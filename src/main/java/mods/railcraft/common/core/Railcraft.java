@@ -8,7 +8,7 @@
  */
 package mods.railcraft.common.core;
 
-import com.gamerforea.railcraft.FixHandler;
+import com.gamerforea.railcraft.ModUtils;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 import com.google.common.primitives.Ints;
@@ -196,7 +196,7 @@ public final class Railcraft
 		FMLInterModComms.sendMessage("OpenBlocks", "donateUrl", "http://www.railcraft.info/donate/");
 
 		// TODO gamerforEA code start
-		FixHandler.init();
+		ModUtils.init();
 		// TODO gamerforEA code end
 	}
 

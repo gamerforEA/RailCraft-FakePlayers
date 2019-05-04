@@ -29,13 +29,18 @@ version = "1.7.10-9.12.2.0"
 group= "mods.railcraft"
 archivesBaseName = "Railcraft"
 
+sourceCompatibility = targetCompatibility = '1.8'
+compileJava {
+	sourceCompatibility = targetCompatibility = '1.8'
+}
+
 minecraft {
 	version = "1.7.10-10.13.4.1614-1.7.10"
 	runDir = "eclipse"
 }
 
 dependencies {
-	compile name: 'EventHelper-1.7-dev'
+	compile name: 'EventHelper-1.7.10-1.10-dev'
 	compile name: archivesBaseName + '-' + version + '-dev'
 }
 

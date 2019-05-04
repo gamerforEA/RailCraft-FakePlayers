@@ -9,7 +9,6 @@
 package mods.railcraft.common.blocks;
 
 import com.gamerforea.eventhelper.fake.FakePlayerContainer;
-import com.gamerforea.eventhelper.fake.FakePlayerContainerTileEntity;
 import com.gamerforea.railcraft.ModUtils;
 import com.mojang.authlib.GameProfile;
 import cpw.mods.fml.common.network.internal.FMLProxyPacket;
@@ -47,7 +46,7 @@ public abstract class RailcraftTileEntity extends TileEntity implements INetwork
 	private UUID uuid;
 
 	// TODO gamerforEA code start
-	public final FakePlayerContainer fake = new FakePlayerContainerTileEntity(ModUtils.profile, this);
+	public final FakePlayerContainer fake = ModUtils.NEXUS_FACTORY.wrapFake(this);
 	// TODO gamerforEA code end
 
 	public static boolean isUseableByPlayerHelper(TileEntity tile, EntityPlayer player)

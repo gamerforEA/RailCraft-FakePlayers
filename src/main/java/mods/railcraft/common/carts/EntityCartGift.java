@@ -8,7 +8,7 @@
  */
 package mods.railcraft.common.carts;
 
-import com.gamerforea.railcraft.ExplosionByPlayer;
+import com.gamerforea.eventhelper.util.ExplosionByPlayer;
 import mods.railcraft.common.core.RailcraftConfig;
 import mods.railcraft.common.items.ItemCrowbar;
 import mods.railcraft.common.items.RailcraftToolItems;
@@ -235,7 +235,8 @@ public class EntityCartGift extends EntityCartTNTWood
 		if (Game.isHost(this.getWorld()))
 		{
 			// TODO gamerforEA use ExplosionByPlayer
-			ExplosionByPlayer.createExplosion(this.fake.get(), this.getWorld(), this, this.posX, this.posY, this.posZ, this.getBlastRadius(), true);
+			this.fake.createExplosion(this, this.posX, this.posY, this.posZ, this.getBlastRadius(), true);
+
 			this.setDead();
 
 			if (this.rand.nextInt(100) >= 50)

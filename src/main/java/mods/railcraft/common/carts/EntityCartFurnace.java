@@ -31,7 +31,7 @@ import java.util.List;
 public class EntityCartFurnace extends EntityMinecartFurnace
 {
 	// TODO gamerforEA code start
-	public final FakePlayerContainer fake = new FakePlayerContainerEntity(ModUtils.profile, this);
+	public final FakePlayerContainer fake = ModUtils.NEXUS_FACTORY.wrapFake(this);
 
 	@Override
 	protected void writeEntityToNBT(NBTTagCompound nbt)

@@ -8,7 +8,7 @@
  */
 package mods.railcraft.common.blocks.machine.beta;
 
-import com.gamerforea.railcraft.ExplosionByPlayer;
+import com.gamerforea.eventhelper.util.ExplosionByPlayer;
 import mods.railcraft.common.blocks.machine.MultiBlockPattern;
 import mods.railcraft.common.blocks.machine.TileMultiBlock;
 import mods.railcraft.common.fluids.FluidHelper;
@@ -206,7 +206,7 @@ public abstract class TileBoiler extends TileMultiBlock implements IFluidHandler
 			if (this.explode)
 			{
 				// TODO gamerforEA use ExplosionByPlayer
-				ExplosionByPlayer.createExplosion(this.fake.get(), this.getWorld(), null, this.xCoord, this.yCoord, this.zCoord, 5f + 0.1f * this.getNumTanks(), true);
+				this.fake.createExplosion(null, this.xCoord, this.yCoord, this.zCoord, 5f + 0.1f * this.getNumTanks(), true);
 
 				this.explode = false;
 				return;

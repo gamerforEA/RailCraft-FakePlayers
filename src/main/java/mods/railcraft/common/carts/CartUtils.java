@@ -8,7 +8,9 @@
  */
 package mods.railcraft.common.carts;
 
-import com.gamerforea.railcraft.ExplosionByPlayer;
+import com.gamerforea.eventhelper.util.ExplosionByPlayer;
+import com.gamerforea.railcraft.EventConfig;
+import com.gamerforea.railcraft.ModUtils;
 import com.mojang.authlib.GameProfile;
 import mods.railcraft.api.carts.CartTools;
 import mods.railcraft.api.carts.IMinecart;
@@ -109,6 +111,11 @@ public class CartUtils
 
 	public static void explodeCart(EntityMinecart cart)
 	{
+		// TODO gamerforEA code start
+		if (!EventConfig.cartExplosions)
+			return;
+		// TODO gamerforEA code end
+
 		if (cart.isDead)
 			return;
 		cart.getEntityData().setBoolean("HighSpeed", false);
@@ -121,9 +128,9 @@ public class CartUtils
 
 		// TODO gamerforEA code replace, old code: cart.worldObj.newExplosion(cart, cart.posX, cart.posY, cart.posZ, 3F, true, true);
 		if (cart instanceof CartBase)
-			ExplosionByPlayer.newExplosion(((CartBase) cart).fake.get(), cart.worldObj, cart, cart.posX, cart.posY, cart.posZ, 3F, true, true);
+			((CartBase) cart).fake.newExplosion(cart, cart.posX, cart.posY, cart.posZ, 3F, true, true);
 		else
-			ExplosionByPlayer.newExplosion(null, cart.worldObj, cart, cart.posX, cart.posY, cart.posZ, 3F, true, true);
+			ExplosionByPlayer.newExplosion(ModUtils.NEXUS_FACTORY.getFake(cart.worldObj), cart.worldObj, cart, cart.posX, cart.posY, cart.posZ, 3F, true, true);
 		// TODO gamerforEA code end
 
 		if (MiscTools.getRand().nextInt(2) == 0)
