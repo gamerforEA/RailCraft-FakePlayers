@@ -14,6 +14,7 @@ import com.mojang.authlib.GameProfile;
 import cpw.mods.fml.common.network.internal.FMLProxyPacket;
 import mods.railcraft.api.core.INetworkedObject;
 import mods.railcraft.api.core.IOwnable;
+import mods.railcraft.common.blocks.machine.TileMultiBlock;
 import mods.railcraft.common.plugins.forge.LocalizationPlugin;
 import mods.railcraft.common.plugins.forge.PlayerPlugin;
 import mods.railcraft.common.plugins.forge.WorldPlugin;
@@ -55,7 +56,15 @@ public abstract class RailcraftTileEntity extends TileEntity implements INetwork
 			return false;
 		if (tile.getWorldObj().getTileEntity(tile.xCoord, tile.yCoord, tile.zCoord) != tile)
 			return false;
-		return player.getDistanceSq(tile.xCoord, tile.yCoord, tile.zCoord) <= 64;
+
+		boolean validDistance = player.getDistanceSq(tile.xCoord, tile.yCoord, tile.zCoord) <= 64;
+
+		// TODO gamerforEA code start
+		if (validDistance && tile instanceof TileMultiBlock && !((TileMultiBlock) tile).isStructureValid())
+			return false;
+		// TODO gamerforEA code end
+
+		return validDistance;
 	}
 
 	public UUID getUUID()
