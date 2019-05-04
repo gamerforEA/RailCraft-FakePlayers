@@ -8,6 +8,7 @@
  */
 package mods.railcraft.common.blocks.ore;
 
+import com.google.common.base.Objects;
 import mods.railcraft.common.core.RailcraftConfig;
 import mods.railcraft.common.plugins.forge.CreativePlugin;
 import mods.railcraft.common.plugins.forge.RailcraftRegistry;
@@ -78,7 +79,7 @@ public class BlockWorldLogic extends Block
 	}
 
 	// TODO gamerforEA code start
-	private static int updateTickCounter;
+	private final ThreadLocal<Integer> updateTickCounter = new ThreadLocal<>();
 	// TODO gamerforEA code end
 
 	@Override
@@ -86,16 +87,17 @@ public class BlockWorldLogic extends Block
 	{
 		// TODO gamerforEA code replace, old code:
 		// world.scheduleBlockUpdate(x, y, z, this, this.tickRate(world));
-		if (updateTickCounter > 10)
+		Integer counter = this.updateTickCounter.get();
+		if (counter != null && counter > 10)
 			return;
-		updateTickCounter++;
+		this.updateTickCounter.set(Objects.firstNonNull(counter, 0) + 1);
 		try
 		{
 			world.scheduleBlockUpdate(x, y, z, this, this.tickRate(world));
 		}
 		finally
 		{
-			updateTickCounter--;
+			this.updateTickCounter.set(counter);
 		}
 		// TODO gamerforEA code end
 
